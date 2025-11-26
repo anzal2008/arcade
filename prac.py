@@ -3,6 +3,7 @@ import os
 import math
 import sys
 import json
+import random
 from os import listdir
 from os.path import isfile, join, exists
 
@@ -35,6 +36,11 @@ BACKGROUND_MAPPING = {
     "level_data_3.json": "Purple.png",
 }
 
+PARTICLE_MAPPING = {
+    'ice': join("assets", "Traps", "Climate", "Iceparticle.png"),
+    'mud': join("assets", "Traps", "Climate", "Mudparticle.png"),
+    'regular': join("assets", "Traps", "Climate", "Sandparticle.png"),
+}
 
 def try_load_image(path, fallback_size=(32, 32)):
     if exists(path):
@@ -213,6 +219,33 @@ class EndPoint(AnimatedObject):
     def __init__(self, x, y, size):
         super().__init__(x, y, size, size, 'end_point', join('assets', 'Items', 'Checkpoints', 'End', 'end.png'), (64, 64), anim_delay=6)
 
+class Particle(BaseObject):
+    def __init__(self, x, y, image_path, velocity=(0,0), lifetime = 20):
+        super().__init__(x, y, 10, 19, name='particle')
+
+        img = try_load_image(image_path, (5, 5))
+        self.image = pygame.transform.scale(img, (10, 10))
+
+        self.rect = self.image.get_rect(center=(x, y))
+        self.x_vel, self.y_vel = velocity
+        self.lifetime = lifetime
+        self.current_age = 0
+        
+        angle = pygame.time.get_ticks() % 360
+        self.image = pygame.transform.rotate(self.image, angle)
+
+    def loop(self):
+        self.rect.x += self.x_vel
+        self.rect.y += self.y_vel
+
+        self.y_vel += 0.5
+
+        self.current_age += 1
+        alpha = 255 - int(255 * (self.current_age / self.liftime))
+        self.image.set_alpha(max(0, alpha))
+        
+        if self.current_age > self.lifetime:
+            self.kill()
 
 class Trampoline(BaseObject):
     WIDTH = EDITOR_BLOCK_SIZE
@@ -576,7 +609,7 @@ def handle_special_terrain(player, objects):
     if player.terrain_decay_timer == 0 and not on_special_block:
         player.current_terrain_effect = 'regular'
 
-def handle_move(player, objects):
+def handle_move(player, objects, particles):
     handle_special_terrain(player, objects)
 
     keys = pygame.key.get_pressed()
@@ -626,6 +659,26 @@ def handle_move(player, objects):
         if player.rect.colliderect(t.rect) and player.y_vel >= 0 and player.rect.bottom <= t.rect.top + 10:
             t.bounce(player)
 
+    keys = pygame.key.get_pressed()
+    is_moving = keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
+
+    if is_moving and player.y_vel == 0 and player.animation_count % 3 == 0:
+
+        terrain_type = player.current_terrain_effect
+        image_path = PARTICLE_MAPPING.get(terrain_type, PARTICLE_MAPPING['regular'])
+
+        px = player.rect.centerx
+        py = player.rect.bottom
+
+        vel_x = -player.x_vel * 0.1
+
+        for _ in range(2):
+            scatter_x = vel_x + (random.random() * 2 - 1) * 0.5
+            scatter_y = random.uniform(-2, -4)
+
+            new_particle = Particle(px, py, image_path, velocity=(scatter_x, scatter_y), lifetime=random.randint(15, 25))
+            particles.add(new_particle)
+
 # Menu and Main
 def main_menu(window):
     clock = pygame.time.Clock()
@@ -674,6 +727,8 @@ def main(window, map_filename):
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
     
+    particles = pygame.sprite.Group()
+
     # Camera reset
     offset_x = 0; offset_y = 0
     
@@ -715,7 +770,7 @@ def main(window, map_filename):
                     return 'menu'
         if not game_over and not level_complete:
             player.loop(FPS)
-            handle_move(player, objects)
+            handle_move(player, objects, particles)
             if handle_end_collision(player, objects):
                 level_complete = True
             if player.rect.y > DEATH_PLANE_HEIGHT and player.lives_invincibility_timer <= 0:
@@ -741,7 +796,15 @@ def main(window, map_filename):
         # animate
         for o in [x for x in objects if hasattr(x, 'loop')]:
             o.loop()
+        
+        particles.update()
+
         draw(window, bg_img, bg_w, bg_h, player, objects, offset_x, offset_y, player.lives_invincibility_timer, game_over, level_complete)
+        
+        particles.draw(window)
+        for p in particles:
+            p.draw(window, offset_x, offset_y)
+        
         for b in in_game: b.draw(window)
         pygame.display.update()
         if game_over or level_complete:
