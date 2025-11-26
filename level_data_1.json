@@ -1,0 +1,692 @@
+[
+    {
+        "name": "block",
+        "x": 192,
+        "y": 576,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 0,
+        "y": 576,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 288,
+        "y": 576,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 480,
+        "y": 384,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 576,
+        "y": 384,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 672,
+        "y": 384,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 672,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 672,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 768,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 864,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 768,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 672,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 576,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 576,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 480,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 384,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 288,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 96,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 192,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 0,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -96,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 96,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 96,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -480,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -864,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1248,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1344,
+        "y": 0,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": -1248,
+        "y": -64,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": -1536,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1632,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1728,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1824,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -1920,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": -1728,
+        "y": 224,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "fire",
+        "x": -1824,
+        "y": 224,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": 96,
+        "y": 576,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "start_point",
+        "x": 96,
+        "y": 480,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "check_point",
+        "x": 96,
+        "y": -192,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "check_point",
+        "x": -1536,
+        "y": 96,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "block",
+        "x": -2112,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2304,
+        "y": -96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2496,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2592,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2688,
+        "y": 192,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2784,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2880,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -2976,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": -2880,
+        "y": 224,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": -3072,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -3168,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": -3072,
+        "y": 224,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": -3264,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -3360,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": -3264,
+        "y": 224,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": -3552,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -3648,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": -3744,
+        "y": 96,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "end_point",
+        "x": -3648,
+        "y": 0,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "block",
+        "x": 960,
+        "y": 288,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "trampoline",
+        "x": 1056,
+        "y": 288,
+        "width": 96,
+        "height": 33
+    },
+    {
+        "name": "saw",
+        "x": 496,
+        "y": -176,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": 304,
+        "y": -176,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": -656,
+        "y": 16,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": -1040,
+        "y": -80,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": -2480,
+        "y": 16,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "mud",
+        "x": 480,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "mud",
+        "x": 576,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "mud",
+        "x": 672,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "mud",
+        "x": 768,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "mud",
+        "x": 864,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "mud",
+        "x": 960,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1152,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1248,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1344,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1440,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1536,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 1632,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "grass",
+        "x": 1824,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "grass",
+        "x": 1920,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "grass",
+        "x": 2016,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "grass",
+        "x": 2112,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "grass",
+        "x": 2208,
+        "y": 672,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "tiny_block",
+        "x": 288,
+        "y": 432,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 288,
+        "y": 480,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    }
+]
