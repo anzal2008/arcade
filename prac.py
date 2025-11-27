@@ -20,6 +20,18 @@ BASE_TILE_SIZE = 32
 EDITOR_BLOCK_SIZE = 96
 LIVES_START = 3
 DEATH_PLANE_HEIGHT = HEIGHT + 200
+AIR_DRAG = 0.95
+
+TIME_FOR_3_STARS = 60.0
+TIME_FOR_2_STARS = 120.0
+TIME_FOR_1_STARS = 180.0
+
+LEVEL_COMPLETE_ASSETS = {
+    3: join("assets", "other", "level_complete_3.png"),
+    2: join("assets", "other", "level_complete_2.png"),
+    1: join("assets", "other", "level_complete_1.png"),
+    0: join("assets", "other", "level_complete_0.png"),
+}
 
 def try_font(path, size):
     try:
@@ -234,14 +246,14 @@ class Particle(BaseObject):
         angle = pygame.time.get_ticks() % 360
         self.image = pygame.transform.rotate(self.image, angle)
 
-    def loop(self):
+    def update(self):
         self.rect.x += self.x_vel
         self.rect.y += self.y_vel
 
         self.y_vel += 0.5
 
         self.current_age += 1
-        alpha = 255 - int(255 * (self.current_age / self.liftime))
+        alpha = 255 - int(255 * (self.current_age / self.lifetime))
         self.image.set_alpha(max(0, alpha))
         
         if self.current_age > self.lifetime:
@@ -250,7 +262,7 @@ class Particle(BaseObject):
 class Trampoline(BaseObject):
     WIDTH = EDITOR_BLOCK_SIZE
     HEIGHT = int(EDITOR_BLOCK_SIZE * 0.35)
-    BOUNCE_VELOCITY = -44 #Trampoline Height
+    BOUNCE_VELOCITY = -44 #Trampolinr jump height
     ANIM_DELAY = 4
 
     _idle = pygame.transform.scale(TRAMP_IDLE, (WIDTH, HEIGHT))
@@ -356,6 +368,10 @@ class Player(pygame.sprite.Sprite):
 
     def loop(self, fps):
         self.y_vel += min(1, (self.fall_count / fps) * self.GRAVITY)
+        if self.jump_count > 0:
+            self.x_vel *= AIR_DRAG
+            if abs(self.x_vel) < 0.1:
+                self.x_vel = 0
         self.move(self.x_vel, self.y_vel)
         if self.hit:
             pass
@@ -524,6 +540,60 @@ def draw(window, bg_image, bg_w, bg_h, player, objects, ox, oy, inv, game_over=F
     if level_complete:
         t = FONT.render('LEVEL COMPLETE! Nice!', True, (0, 255, 0))
         window.blit(t, (WIDTH//2 - t.get_width()//2, HEIGHT//2))
+    
+def draw_completion_screen(window, current_time, restart_btn, close_btn):
+    win_w, win_h = window.get_size()
+    
+    dim_surface = pygame.Surface((win_w, win_h))
+    dim_surface.set_alpha(150)
+    dim_surface.fill(('black'))
+    window.blit(dim_surface, (0, 0))
+
+    if current_time <= TIME_FOR_3_STARS:
+        stars_achieved = 3
+    elif current_time <= TIME_FOR_2_STARS:
+        stars_achieved = 2
+    elif current_time <= TIME_FOR_1_STARS:
+        stars_achieved = 1
+    else:
+        stars_achieved = 0
+
+    completion_image_path = LEVEL_COMPLETE_ASSETS.get(stars_achieved, LEVEL_COMPLETE_ASSETS.get(1))
+    completion_image = try_load_image(completion_image_path, (500, 300))
+
+    target_width = 400
+    if completion_image.get_width() > target_width:
+        scale_factor = target_width / completion_image.get_width()
+        completion_image = pygame.transform.scale(
+            completion_image,
+            (target_width, int(completion_image.get_height() * scale_factor))
+        )
+
+    image_x = (win_w - completion_image.get_width()) // 2
+    image_y = (win_h - completion_image.get_height()) // 2 - 50
+    window.blit(completion_image, (image_x, image_y))
+
+    time_text = FONT.render(f"Time: {current_time:.2f} seconds", 1, (255, 255, 255))
+
+    time_text_x = (win_w - time_text.get_width()) //2
+    time_text_y = image_y + completion_image.get_height() + 20
+    window.blit(time_text, (time_text_x, time_text_y))
+
+    btn_size = restart_btn.image.get_width()
+    button_padding = 40
+    total_btns_width = (2 * btn_size) + button_padding
+
+    start_btn_x = (win_w - total_btns_width) // 2
+    btn_y = time_text_y + time_text.get_height() + 30
+
+    restart_btn.rect.topleft = (start_btn_x, btn_y)
+    restart_btn.draw(window)
+
+    close_btn.rect.topleft = (start_btn_x + btn_size + button_padding, btn_y)
+    close_btn.draw(window)
+
+
+
 
 # ----------------------
 # Collision & Movement
@@ -727,14 +797,20 @@ def main(window, map_filename):
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
     
+    # Initialize buttons once (removed redundant initialization below)
+    restart_btn = GameButton(WIDTH-58, 10, join('assets','Menu','Buttons','Restart.png'), (48,48))
+    close_btn = GameButton(WIDTH-116,10, join('assets','Menu','Buttons','Close.png'), (48,48))
+    
+    start_time = pygame.time.get_ticks()
+    final_time = None
+
     particles = pygame.sprite.Group()
 
     # Camera reset
     offset_x = 0; offset_y = 0
     
     scroll_w = 200
-    restart_btn = GameButton(WIDTH-58, 10, join('assets','Menu','Buttons','Restart.png'), (48,48))
-    close_btn = GameButton(WIDTH-116,10, join('assets','Menu','Buttons','Close.png'), (48,48))
+    
     in_game = [restart_btn, close_btn]
     INITIAL = player_start
     
@@ -758,16 +834,33 @@ def main(window, map_filename):
                     player.jump()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mp = event.pos
+                
+                # Logic for buttons applies regardless of game state, 
+                # but only acts on the currently drawn position.
                 if restart_btn.check_click(mp):
+                    # Reset game state
                     player.lives = LIVES_START
                     player.start_pos = INITIAL
                     player.rect.topleft = INITIAL
                     player.x_vel = player.y_vel = 0
-                    # FIX: Reset camera on manual restart
+                    game_over = False
+                    level_complete = False
+                    final_time = None # Reset final time
+                    start_time = pygame.time.get_ticks() # Restart timer
+                    
+                    # Reset camera on manual restart
                     offset_x = INITIAL[0] - (WIDTH // 2)
                     offset_y = INITIAL[1] - (HEIGHT // 2)
+                    
                 if close_btn.check_click(mp):
                     return 'menu'
+                    
+        # --- Level Complete Timer Logic ---
+        if level_complete and final_time is None:
+            # Stop the timer and save the final time
+            final_time = (pygame.time.get_ticks() - start_time) / 1000.0
+            
+        # --- Main Game Logic and Movement ---
         if not game_over and not level_complete:
             player.loop(FPS)
             handle_move(player, objects, particles)
@@ -786,40 +879,56 @@ def main(window, map_filename):
                         player.x_vel = player.y_vel = 0
                         offset_x = player.start_pos[0] - (WIDTH // 2)
                         offset_y = player.start_pos[1] - (HEIGHT // 2)
-
+                
                 player.hit = False
-            # camera
+            
+            # Camera update (Only runs when not complete/game over)
             if ((player.rect.right - offset_x >= WIDTH - scroll_w) and player.x_vel > 0) or ((player.rect.left - offset_x <= scroll_w) and player.x_vel < 0):
                 offset_x += player.x_vel
             target_y = player.rect.y - (HEIGHT // 2)
             offset_y += (target_y - offset_y) * 0.1
+            
         # animate
         for o in [x for x in objects if hasattr(x, 'loop')]:
             o.loop()
         
         particles.update()
 
+        # 1. Draw game scene
         draw(window, bg_img, bg_w, bg_h, player, objects, offset_x, offset_y, player.lives_invincibility_timer, game_over, level_complete)
         
-        particles.draw(window)
+        # 2. Draw particles
         for p in particles:
             p.draw(window, offset_x, offset_y)
         
-        for b in in_game: b.draw(window)
+        # 3. Conditional UI Drawing
+        if level_complete and final_time is not None:
+            # Draw custom completion screen with centered buttons
+            draw_completion_screen(window, final_time, restart_btn, close_btn)
+        else:
+            # Draw regular in-game buttons in the corner
+            restart_btn.rect.topleft = (WIDTH-58, 10)
+            close_btn.rect.topleft = (WIDTH-116, 10)
+            for b in [restart_btn, close_btn]: 
+                b.draw(window)
+
         pygame.display.update()
-        if game_over or level_complete:
+            
+        # --- Game Over Reset ---
+        if game_over:
             pygame.time.delay(2000)
-            if level_complete:
-                return 'menu'
-            # reset for new game
+            
+            # reset for new game (death reset)
             player.lives = LIVES_START
             player.rect.topleft = INITIAL
             player.start_pos = INITIAL
             player.x_vel = player.y_vel = 0
             game_over = False
-            level_complete = False
+            level_complete = False # Ensure reset after game over
+            final_time = None # Ensure time is reset
+            start_time = pygame.time.get_ticks() # Restart timer
             
-            # FIX: Reset offsets for the next game start
+            # Reset offsets for the next game start
             offset_x = INITIAL[0] - (WIDTH // 2)
             offset_y = INITIAL[1] - (HEIGHT // 2)
             
