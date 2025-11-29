@@ -426,6 +426,7 @@ class GameButton(Button):
 # Save / Load level
 def save_map(objects, key):
     fname = MAP_FILES[key]
+    FULL_PATH = join("assets", "Maps", fname)
     data = []
     for o in objects:
         item = {'name': o.name, 'x': o.rect.x, 'y': o.rect.y, 'width': o.width, 'height': o.height}
@@ -433,19 +434,20 @@ def save_map(objects, key):
             item['variant_x'] = o.variant_x
             item['variant_y'] = getattr(o, 'variant_y', 0)
         data.append(item)
-    with open(fname, 'w') as f:
+    with open(FULL_PATH, 'w') as f:
         json.dump(data, f, indent=4)
 
 def load_map(filename='level_data_1.json', block_size=EDITOR_BLOCK_SIZE):
-    if not exists(filename):
+    FULL_PATH = join("assets", "Maps", filename)
+    if not exists(FULL_PATH):
         return [], None
-    with open(filename, 'r') as f:
+    with open(FULL_PATH, 'r') as f:
         data = json.load(f)
     return load_level(data, block_size)
 
 def load_level(data, block_size):
     objects = []
-    start_pos = None
+    start_pos = None 
     for item in data:
         name = item.get('name')
         x = item.get('x', 0)

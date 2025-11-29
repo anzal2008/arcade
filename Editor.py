@@ -23,9 +23,6 @@ CURRENT_MAP_KEY = 1
 def try_load(path):
     return pygame.image.load(path).convert_alpha()
 
-trampoline_idle = try_load("assets/Traps/Trampoline/Idle.png")
-trampoline_jump_sheet = try_load("assets/Traps/Trampoline/Jump.png")# chnage
-
 
 MAP_FILES = {
     1: 'level_data_1.json', 
@@ -59,12 +56,14 @@ CATEGORY_KEYS = {
     pygame.K_r: "terrain",
     pygame.K_t: "traps",
     pygame.K_y: "points",
+    pygame.K_u: "fruits",
 }
 
 TOOL_GROUPS = {
     "terrain": ["block", "tiny_block", "mud", "grass", "ice"],
     "traps": ["fire", "spike_head", "saw", "trampoline"],
     "points": ["start_point", "end_point", "checkpoint"],
+    "fruits": ["melon", "pineapple", "strawberry"]
 }
 
 def cut_spritesheet(sheet, fw, fh, count=None):
@@ -186,6 +185,8 @@ class Saw(AnimatedObject):
 class Trampoline(Object):
     TRAMPOLINE_WIDTH = EDITOR_BLOCK_SIZE
     TRAMPOLINE_HEIGHT = int(EDITOR_BLOCK_SIZE * 0.35)
+    trampoline_idle = try_load(join("assets/Traps/Trampoline/Idle.png"))
+    trampoline_jump_sheet = try_load(join("assets/Traps/Trampoline/Jump.png"))
 
     _idle_scaled = pygame.transform.scale(trampoline_idle, (TRAMPOLINE_WIDTH, TRAMPOLINE_HEIGHT))
     _jump_frames_scaled = [
@@ -238,6 +239,47 @@ class EndPoint(AnimatedObject):
                          join("assets", "Items", "Checkpoints", "End", "end.png"),
                          (64, 64))
 
+class Fruit(Object):
+    FRUIT_SIZE = EDITOR_BLOCK_SIZE // 2
+    FRAME_SIZE = 32
+    ANIM_DELAY = 6
+
+    
+    MELON_SHEET = try_load(join("assets", "Items", "Fruits", "Melon.png"))
+    PINEAPPLE_SHEET = try_load(join("assets", "Items", "Fruits", "Pineapple.png"))
+    STRAWBERRY_SHEET = try_load(join("assets", "Items", "Fruits", "Strawberry.png"))
+
+    FRUIT_ASSETS = {
+        "melon": (MELON_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+        "pineapple": (PINEAPPLE_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+        "strawberry": (STRAWBERRY_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+    }
+
+    def __init__(self, x, y, name):
+        centered_x = x + (EDITOR_BLOCK_SIZE - self.FRUIT_SIZE) // 2
+        centered_y = y + (EDITOR_BLOCK_SIZE - self.FRUIT_SIZE) // 2
+
+        sheet, (fw, fh) = self.FRUIT_ASSETS[name]
+
+        super().__init__(centered_x, centered_y, self.FRUIT_SIZE, self.FRUIT_SIZE, name)
+
+        self.frames = []
+        for i in range(sheet.get_width() // fw):
+            frame = pygame.Surface((fw, fh), pygame.SRCALPHA)
+            frame.blit(sheet, (0, 0), (i * fw, 0, fw, fh))
+            self.frames.append(
+                pygame.transform.scale(frame, (self.FRUIT_SIZE, self.FRUIT_SIZE))
+            )
+
+        self.animation_count = 0
+        self.image = self.frames[0]
+        self.anim_delay = self.ANIM_DELAY
+
+    def loop(self):
+        idx = (self.animation_count // self.ANIM_DELAY) % len(self.frames)
+        self.image = self.frames[idx]
+        self.animation_count += 1
+
 def save_map(objects, key):
     fname = MAP_FILES[key]
     FULL_PATH = join("assets", "Maps", fname)
@@ -287,8 +329,12 @@ def load_map(key):
             objs.append(Checkpoint(x, y, it.get("width", EDITOR_BLOCK_SIZE)))
         elif n == "trampoline":
             objs.append(Trampoline(x, y))
+        elif n in Fruit.FRUIT_ASSETS:
+            objs.append(Fruit(x, y, n))
+
     return objs
 
+# maybe moving objects
 def place_object(x, y, objects, tool_name):
     variants = BLOCK_VARIANTS[CURRENT_MAP_KEY]
     block_vx = variants["block_x"]
@@ -320,6 +366,12 @@ def place_object(x, y, objects, tool_name):
         objects.append(Checkpoint(x, y, EDITOR_BLOCK_SIZE))
     elif tool_name == "trampoline":
         objects.append(Trampoline(x, y))
+    elif tool_name == "melon":
+        objects.append(Fruit(x, y, "melon"))
+    elif tool_name == "pineapple":
+        objects.append(Fruit(x, y, "pineapple"))
+    elif tool_name == "strawberry":
+        objects.append(Fruit(x, y, "strawberry"))
 
 def delete_object(objects, mx, my, ox, oy):
     wx, wy = mx + ox, my + oy
@@ -367,11 +419,11 @@ def draw_editor(win, bg, bw, bh, objects, ox, oy):
     text_map = FONT.render(f"MAP FILE: {MAP_FILES[CURRENT_MAP_KEY]} (I/O/PF to change)", True, (255, 255, 0))
     win.blit(text_map, (10, 10))
 
-    tool_text_1 = f"Category: [{EDITOR_CATEGORY.upper() if EDITOR_CATEGORY else 'NONE'}] (R/T/Y)"
+    tool_text_1 = f"Category: [{EDITOR_CATEGORY.upper() if EDITOR_CATEGORY else 'NONE'}] (R/T/Y/U)"
     tool_text_2 = f"Current Tool: {EDITOR_TOOL.upper()}"
 
-    text_tool_1 = FONT.render(tool_text_1, True, (255, 255, 255)) # Used white
-    text_tool_2 = FONT.render(tool_text_2, True, (255, 255, 255)) # Used white
+    text_tool_1 = FONT.render(tool_text_1, True, (255, 255, 255)) 
+    text_tool_2 = FONT.render(tool_text_2, True, (255, 255, 255)) 
     win.blit(text_tool_1, (10, 40))
     win.blit(text_tool_2, (10, 70))
 
@@ -504,4 +556,4 @@ if __name__ == "__main__":
         # Maybe setting (hard do later)
         # Get more blocks like space theme
         # stars in main screen counting them up
-        # Makew maps more organized
+        # Add fruits that provide buffs maybe debuffs after (first map editor)

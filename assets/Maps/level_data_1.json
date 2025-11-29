@@ -672,21 +672,45 @@
         "height": 96
     },
     {
-        "name": "tiny_block",
-        "x": 288,
-        "y": 432,
+        "name": "melon",
+        "x": 624,
+        "y": 624,
         "width": 48,
-        "height": 48,
-        "variant_x": 144,
-        "variant_y": 0
+        "height": 48
     },
     {
-        "name": "tiny_block",
-        "x": 288,
-        "y": 480,
+        "name": "pineapple",
+        "x": 816,
+        "y": 624,
         "width": 48,
-        "height": 48,
-        "variant_x": 144,
-        "variant_y": 0
+        "height": 48
+    },
+    {
+        "name": "strawberry",
+        "x": 1008,
+        "y": 624,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "melon",
+        "x": 504,
+        "y": 312,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "pineapple",
+        "x": 696,
+        "y": 120,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "strawberry",
+        "x": 984,
+        "y": 216,
+        "width": 48,
+        "height": 48
     }
 ]
