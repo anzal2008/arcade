@@ -18,7 +18,7 @@ EDITOR_BLOCK_SIZE = 96
 SMALL_GRID_SIZE = 48
 
 EDITOR_TOOL = "block"
-CURRENT_MAP_KEY = pygame.K_i
+CURRENT_MAP_KEY = 1
 
 def try_load(path):
     return pygame.image.load(path).convert_alpha()
@@ -26,22 +26,32 @@ def try_load(path):
 trampoline_idle = try_load("assets/Traps/Trampoline/Idle.png")
 trampoline_jump_sheet = try_load("assets/Traps/Trampoline/Jump.png")# chnage
 
+
 MAP_FILES = {
-    pygame.K_i: "level_data_1.json",
-    pygame.K_o: "level_data_2.json",
-    pygame.K_p: "level_data_3.json",
+    1: 'level_data_1.json', 
+    2: 'level_data_2.json',
+    3: 'level_data_3.json',
+    4: 'level_data_4.json',
+    5: 'level_data_5.json',
+    6: 'level_data_6.json',
 }
 
 BACKGROUND_FILES = {
-    pygame.K_i: "Blue.png", 
-    pygame.K_o: "Brown.png",
-    pygame.K_p: "Purple.png",
+    1: "Blue.png",
+    2: "Brown.png",
+    3: "Purple.png",
+    4: "Yellow.png",
+    5: "Green.png",
+    6: "Pink.png",
 }
 
 BLOCK_VARIANTS = { 
-    pygame.K_i: {"block_x": 96, "tiny_x": 144, "y": 0},
-    pygame.K_o: {"block_x": 96, "tiny_x": 144, "y": 64},
-    pygame.K_p: {"block_x": 96, "tiny_x": 144, "y": 128},
+    1: {"block_x": 96, "tiny_x": 144, "y": 0},
+    2: {"block_x": 96, "tiny_x": 144, "y": 64},
+    3: {"block_x": 96, "tiny_x": 144, "y": 128},
+    4: {"block_x": 96, "tiny_x": 144, "y": 0},
+    5: {"block_x": 96, "tiny_x": 144, "y": 64},
+    6: {"block_x": 96, "tiny_x": 144, "y": 128},
 }
 
 EDITOR_CATEGORY = None
@@ -230,6 +240,7 @@ class EndPoint(AnimatedObject):
 
 def save_map(objects, key):
     fname = MAP_FILES[key]
+    FULL_PATH = join("assets", "Maps", fname)
     data = []
     for o in objects:
         item = {"name": o.name, "x": o.rect.x, "y": o.rect.y, "width": o.width, "height": o.height}
@@ -238,15 +249,16 @@ def save_map(objects, key):
             item["variant_x"] = getattr(o, "variant_x", 96)
             item["variant_y"] = getattr(o, "variant_y", 0)
         data.append(item)
-    with open(fname, "w") as f:
+    with open(FULL_PATH, "w") as f:
         json.dump(data, f, indent=4)
-    print("Saved:", fname)
+    print("Saved:", FULL_PATH)
 
 def load_map(key):
     fname = MAP_FILES[key]
+    FULL_PATH = join("assets", "Maps", fname)
     objs = []
     variants = BLOCK_VARIANTS[key]
-    data = json.load(open(fname))
+    data = json.load(open(FULL_PATH))
 
     for it in data:
         n, x, y = it.get("name"), it.get("x", 0), it.get("y", 0)
@@ -322,7 +334,7 @@ def draw_grid(win, ox, oy):
         pygame.draw.line(win, color, (x, 0), (x, HEIGHT))
     for y in range(-oy % EDITOR_BLOCK_SIZE, HEIGHT, EDITOR_BLOCK_SIZE):
         pygame.draw.line(win, color, (0, y), (WIDTH, y))
-# start here cryy
+
 def draw_editor(win, bg, bw, bh, objects, ox, oy):
 
     for x in range(-ox % bw - bw, WIDTH + bw, bw):
@@ -407,7 +419,7 @@ def handle_editor_input(event, objects, ox, oy):
             else:
                 EDITOR_CATEGORY = target_category
             return dx, dy, CURRENT_MAP_KEY if changed else None
-        
+            
         if EDITOR_CATEGORY and event.key >= pygame.K_1 and event.key <= pygame.K_9:
             key_index = event.key - pygame.K_1
 
@@ -416,12 +428,14 @@ def handle_editor_input(event, objects, ox, oy):
                 EDITOR_TOOL = current_tools[key_index]
                 EDITOR_CATEGORY = None
             return dx, dy, CURRENT_MAP_KEY if changed else None
+        
+        if event.key >= pygame.K_1 and event.key <= pygame.K_6:
+            target_key = event.key - pygame.K_0 
 
-        if event.key in MAP_FILES:
-            if event.key != CURRENT_MAP_KEY:
-                CURRENT_MAP_KEY = event.key
-                objects[:] = load_map(CURRENT_MAP_KEY) 
-                changed = True
+            if target_key in MAP_FILES:
+                if target_key != CURRENT_MAP_KEY:
+                    CURRENT_MAP_KEY = target_key 
+                    changed = True
 
         elif event.key == pygame.K_s:
             save_map(objects, CURRENT_MAP_KEY)
@@ -455,14 +469,15 @@ def main_editor(window):
             dx, dy, new_map_key = handle_editor_input(event, objects, ox, oy)
             
             if new_map_key is not None:
+                objects [:] = load_map(new_map_key)
                 new_bg_file = BACKGROUND_FILES[new_map_key]
                 bg, bw, bh = get_background(new_bg_file)
                 current_bg_file = new_bg_file
                 ox = 0 
                 oy = 0
 
-            ox += dx
-            oy += dy
+            ox += dx if dx is not None else 0
+            oy += dy if dy is not None else 0
             
         for obj in objects:
             if hasattr(obj, "loop"):
@@ -482,13 +497,11 @@ if __name__ == "__main__":
         pygame.time.delay(3000)
         pygame.quit()
         sys.exit()
-        # plans for today
-        #Figure out git hub repository 
-        #Finishing map screen??
+        # plans for game
         #Achievments
-        #Make code smoother
-        #Better maps
-        #Particle
-        #sound
-        # Maybe setting
+        #Better maps ughhhhhhhh
+        # trampoling boing
+        # Maybe setting (hard do later)
         # Get more blocks like space theme
+        # stars in main screen counting them up
+        # Makew maps more organized

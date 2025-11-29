@@ -38,7 +38,11 @@ BACKGROUND_MAPPING = {
     "level_data_1.json": "Blue.png",
     "level_data_2.json": "Brown.png",
     "level_data_3.json": "Purple.png",
+    "level_data_4.json": "Yellow.png",
+    "level_data_5.json": "Green.png",
+    "level_data_6.json": "Pink.png",
 }
+
 
 PARTICLE_MAPPING = {
     'ice': join("assets", "Traps", "Climate", "Iceparticle.png"),
@@ -47,9 +51,12 @@ PARTICLE_MAPPING = {
 }
 
 MAP_FILES = {
-    pygame.K_i: 'level_data_1.json',
-    pygame.K_o: 'level_data_2.json',
-    pygame.K_p: 'level_data_3.json',
+    pygame.K_1: 'level_data_1.json',
+    pygame.K_2: 'level_data_2.json',
+    pygame.K_3: 'level_data_3.json',
+    pygame.K_4: 'level_data_4.json',
+    pygame.K_5: 'level_data_5.json',
+    pygame.K_6: 'level_data_6.json',
 }
 def try_font(path, size):
     return pygame.font.Font(path, size)
@@ -694,15 +701,15 @@ def main_menu(window):
     title = MENU_FONT.render('PLATFORMER', True, (255, 105, 180))
     title_x = WIDTH//2 - title.get_width()//2
     title_y = HEIGHT//5
-    button_paths = [join('assets','Menu','Levels','01.png'), join('assets','Menu','Levels','02.png'), join('assets','Menu','Levels','03.png')]
-    map_files = ['level_data_1.json','level_data_2.json','level_data_3.json']
+    button_paths = [join('assets','Menu','Levels','01.png'), join('assets','Menu','Levels','02.png'), join('assets','Menu','Levels','03.png'), join('assets','Menu','Levels','04.png'), join('assets','Menu','Levels','05.png'), join('assets','Menu','Levels','06.png')]
+    map_files = ['level_data_1.json','level_data_2.json', 'level_data_3.json', 'level_data_4.json','level_data_5.json','level_data_6.json']
     button_size = 96; spacing = 50
-    total_w = 3*button_size + 2*spacing
+    total_w = 6*button_size + 5*spacing
     start_x = (WIDTH - total_w)//2
     button_y = HEIGHT//2 + 50
     buttons = []
     x = start_x
-    for i in range(3):
+    for i in range(6):
         buttons.append(Button(x, button_y, button_paths[i], map_files[i]))
         x += button_size + spacing
     run = True

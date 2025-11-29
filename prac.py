@@ -23,10 +23,6 @@ CURRENT_MAP_KEY = 1
 def try_load(path):
     return pygame.image.load(path).convert_alpha()
 
-trampoline_idle = try_load("assets/Traps/Trampoline/Idle.png")
-trampoline_jump_sheet = try_load("assets/Traps/Trampoline/Jump.png")# chnage
-
-
 MAP_FILES = {
     1: 'level_data_1.json', 
     2: 'level_data_2.json',
@@ -59,12 +55,14 @@ CATEGORY_KEYS = {
     pygame.K_r: "terrain",
     pygame.K_t: "traps",
     pygame.K_y: "points",
+    pygame.K_u: "fruits",
 }
 
 TOOL_GROUPS = {
     "terrain": ["block", "tiny_block", "mud", "grass", "ice"],
     "traps": ["fire", "spike_head", "saw", "trampoline"],
     "points": ["start_point", "end_point", "checkpoint"],
+    "fruits": ["melon", "pinapple", "strawberry"]
 }
 
 def cut_spritesheet(sheet, fw, fh, count=None):
@@ -186,6 +184,8 @@ class Saw(AnimatedObject):
 class Trampoline(Object):
     TRAMPOLINE_WIDTH = EDITOR_BLOCK_SIZE
     TRAMPOLINE_HEIGHT = int(EDITOR_BLOCK_SIZE * 0.35)
+    trampoline_idle = try_load("assets/Traps/Trampoline/Idle.png")
+    trampoline_jump_sheet = try_load("assets/Traps/Trampoline/Jump.png")
 
     _idle_scaled = pygame.transform.scale(trampoline_idle, (TRAMPOLINE_WIDTH, TRAMPOLINE_HEIGHT))
     _jump_frames_scaled = [
@@ -238,8 +238,42 @@ class EndPoint(AnimatedObject):
                          join("assets", "Items", "Checkpoints", "End", "end.png"),
                          (64, 64))
 
+class Fruit(AnimatedObject):
+    FRUIT_SIZE = EDITOR_BLOCK_SIZE //2
+    FRAME_SIZE = 32
+    ANIM_DELAY = 6
+
+    MELON_SHEET = try_load(join("assets", "Items", "Fruits", "Melon.png"))
+    PINAPPLE_SHEET = try_load(join("assets", "Items", "Fruits", "Pineapple.png"))
+    STRAWBERRY_SHEET = try_load(join("assets", "Items", "Fruits", "Strawberry.png"))
+
+    FRUIT_ASSETS = {
+        "melon": (MELON_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+        "pineapple": (PINAPPLE_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+        "strawberry": (STRAWBERRY_SHEET, (FRAME_SIZE, FRAME_SIZE)),
+    }
+
+    def __init__(self, x, y, name):
+        centered_x = x + (EDITOR_BLOCK_SIZE - self.FRUIT_SIZE) // 2
+        centered_y = y + (EDITOR_BLOCK_SIZE - self.FRUIT_SIZE) // 2
+
+        sheet, frame_dims = self.FRUIT_ASSETS.get(name)
+        super().__init__(centered_x, centered_y, self.FRUIT_SIZE, self.FRUIT_SIZE, name, "", frame_dims, anim_delay=self.ANIM_DELAY)
+        
+        self.frames = []
+        fw, fh = frame_dims
+        for i in range(sheet.get_width() // fw):
+            fr = pygame.Surface((fw, fh), pygame.SRCALPHA)
+            fr.blit(sheet, (0, 0), (i * fw, 0, fw, fh))
+            self.frames.append(pygame.transform.scale(fr, (self.FRUIT_SIZE, self.FRUIT_SIZE)))
+
+        self.animation_count = 0
+        if self.frames:
+            self.image = self.frames[0]
+
 def save_map(objects, key):
     fname = MAP_FILES[key]
+    FULL_PATH = join("assets", "Maps", fname)
     data = []
     for o in objects:
         item = {"name": o.name, "x": o.rect.x, "y": o.rect.y, "width": o.width, "height": o.height}
@@ -248,15 +282,16 @@ def save_map(objects, key):
             item["variant_x"] = getattr(o, "variant_x", 96)
             item["variant_y"] = getattr(o, "variant_y", 0)
         data.append(item)
-    with open(fname, "w") as f:
+    with open(FULL_PATH, "w") as f:
         json.dump(data, f, indent=4)
-    print("Saved:", fname)
+    print("Saved:", FULL_PATH)
 
 def load_map(key):
     fname = MAP_FILES[key]
+    FULL_PATH = join("assets", "Maps", fname)
     objs = []
     variants = BLOCK_VARIANTS[key]
-    data = json.load(open(fname))
+    data = json.load(open(FULL_PATH))
 
     for it in data:
         n, x, y = it.get("name"), it.get("x", 0), it.get("y", 0)
@@ -285,8 +320,12 @@ def load_map(key):
             objs.append(Checkpoint(x, y, it.get("width", EDITOR_BLOCK_SIZE)))
         elif n == "trampoline":
             objs.append(Trampoline(x, y))
+        elif n in Fruit.FRUIT_ASSETS:
+            objs.append(Fruit(x, y, n))
+
     return objs
 
+# maybe moving objects
 def place_object(x, y, objects, tool_name):
     variants = BLOCK_VARIANTS[CURRENT_MAP_KEY]
     block_vx = variants["block_x"]
@@ -318,6 +357,12 @@ def place_object(x, y, objects, tool_name):
         objects.append(Checkpoint(x, y, EDITOR_BLOCK_SIZE))
     elif tool_name == "trampoline":
         objects.append(Trampoline(x, y))
+    elif tool_name == "Melon":
+        objects.append(Fruit(x, y, "melon"))
+    elif tool_name == "pineapple":
+        objects.append(Fruit(x, y, "pineapple"))
+    elif tool_name == "strawberry":
+        objects.append(Fruit(x, y, "strawberyy"))
 
 def delete_object(objects, mx, my, ox, oy):
     wx, wy = mx + ox, my + oy
@@ -502,3 +547,4 @@ if __name__ == "__main__":
         # Maybe setting (hard do later)
         # Get more blocks like space theme
         # stars in main screen counting them up
+        # Add fruits that provide buffs maybe debuffs after
