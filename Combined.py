@@ -97,7 +97,6 @@ def draw_winner(text):
     pygame.time.delay(4000)
 
 def main_shooter():
-    # Load assets here to avoid global clutter
     ASSETS_FOLDER = os.path.join(os.path.dirname(__file__), 'assets', 'Dual_game')
     bg = pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, '1v1.png')), (WIDTH, HEIGHT))
     red_ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'spaceship_red.png')), (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 270)
@@ -144,8 +143,7 @@ def main_shooter():
         handle_movement(keys_pressed, yellow, red)
         handle_bullets(yellow_bullets, red_bullets, yellow, red)
         draw_window_shooter(red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship)
-
-# --------------------- SPACE DODGER ---------------------
+#Space dodger game
 def draw_dodger(player, elapsed_time, stars, bg, player_img, star_img):
     WIN.blit(bg, (0, 0))
     time_text = MENU_FONT.render(f"Time: {round(elapsed_time)}s", 1, "white")
@@ -219,7 +217,7 @@ def main_dodger():
         if hit: lost_screen_dodger(elapsed_time, bg, player_img, star_img); return
         draw_dodger(player, elapsed_time, stars, bg, player_img, star_img)
 
-# --------------------- LAUNCHER ---------------------
+# Launcher
 def launcher_screen():
     ASSETS_FOLDER = os.path.join(os.path.dirname(__file__), 'assets', 'Dual_game')
     launcher_bg = pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'Arcade_BG.png')), (WIDTH, HEIGHT))
@@ -262,3 +260,10 @@ def launcher_screen():
 if __name__ == "__main__":
     launcher_screen()
     pygame.quit()
+        #FINAL TOUCHES
+    # SIMPLIFY CODE very baddd
+    # add a few more simple improvment to all the games 
+    # make so buyttons wrokm everywhere and is seamless
+    # eventall;y add transtion ot each game
+    # have a goal of achievenmtn top done "finish" the game
+    # imporvwe fonts and than submit game 1 week lets go

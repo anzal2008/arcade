@@ -16,7 +16,7 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer")
 
 FPS = 60
-PLAYER_VEL = 10
+PLAYER_VEL = 8
 BASE_TILE_SIZE = 32
 EDITOR_BLOCK_SIZE = 96
 LIVES_START = 3
@@ -316,7 +316,8 @@ class Player(pygame.sprite.Sprite):
 
         self.jump_boost = False
         self.jump_boost_timer = 0
-        
+        self.jump_boost_duration = FPS * 5        
+
         self.melon_active = False
         self.current_terrain_effect = 'regular'
         self.terrain_decay_timer = 0
@@ -334,7 +335,6 @@ class Player(pygame.sprite.Sprite):
 
         if self.jump_boost:
             jump_factor *= 1.6     
-            self.jump_boost = False # 
 
         self.y_vel = -self.GRAVITY * jump_factor
         self.animation_count = 0
@@ -375,6 +375,11 @@ class Player(pygame.sprite.Sprite):
         self.update_sprite()
         if self.lives_invincibility_timer > 0:
             self.lives_invincibility_timer -= 1
+
+        if self.jump_boost_timer > 0:
+            self.jump_boost_timer -= 1
+            if self.jump_boost_timer <= 0:
+                self.jump_boost = False
 
     def landed(self):
         self.fall_count = 0
@@ -736,6 +741,7 @@ def handle_move(player, objects, particles):
 
             elif fruit.name == "pineapple":
                 player.jump_boost = True
+                player.jump_boost_timer = player.jump_boost_duration
 
             elif fruit.name == "strawberry":
                 if player.lives < 5:
@@ -763,7 +769,6 @@ def handle_move(player, objects, particles):
             new_particle = Particle(px, py, image_path, velocity=(scatter_x, scatter_y), lifetime=random.randint(15, 25))
             particles.add(new_particle)
 
-# Menu and Main
 def main_menu(window):
     clock = pygame.time.Clock()
     menu_bg = get_menu_background()
@@ -804,8 +809,17 @@ def main(window, map_filename):
     clock = pygame.time.Clock()
     bg_name = BACKGROUND_MAPPING.get(map_filename, 'Blue.png')
     bg_img, bg_w, bg_h = get_background(bg_name)
-    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
+
+    FULL_PATH = join("assets", "Maps", map_filename)
+    if exists(FULL_PATH):
+        with open(FULL_PATH, 'r') as f:
+            RAW_MAP_DATA = json.load(f)
+    else:
+        RAW_MAP_DATA = []
+    
+    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
     trampolines = [o for o in objects if o.name == 'trampoline']
+    
     DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE*2)
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
@@ -846,6 +860,9 @@ def main(window, map_filename):
                 mp = event.pos
                 
                 if restart_btn.check_click(mp):
+                    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
+                    trampolines = [o for o in objects if o.name == 'trampoline']
+
                     player.lives = LIVES_START
                     player.start_pos = INITIAL
                     player.rect.topleft = INITIAL
@@ -865,7 +882,6 @@ def main(window, map_filename):
         if level_complete and final_time is None:
             final_time = (pygame.time.get_ticks() - start_time) / 1000.0
             
-        # --- Main Game Logic and Movement + death plane
         if not game_over and not level_complete:
             player.loop(FPS)
             handle_move(player, objects, particles)
@@ -912,7 +928,6 @@ def main(window, map_filename):
 
         pygame.display.update()
             
-        # --- Game Over Reset ---
         if game_over:
             pygame.time.delay(2000)
             
@@ -947,4 +962,3 @@ if __name__ == '__main__':
                 current_map = None
         else:
             break 
-# fix the speed aspect
