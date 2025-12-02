@@ -1,51 +1,367 @@
 [
     {
-        "name": "block",
-        "x": 288,
-        "y": 384,
-        "width": 96,
-        "height": 96,
-        "variant_x": 96,
-        "variant_y": 64
-    },
-    {
-        "name": "block",
-        "x": 384,
-        "y": 384,
-        "width": 96,
-        "height": 96,
-        "variant_x": 96,
-        "variant_y": 64
-    },
-    {
-        "name": "block",
-        "x": 480,
-        "y": 384,
-        "width": 96,
-        "height": 96,
-        "variant_x": 96,
-        "variant_y": 64
-    },
-    {
-        "name": "block",
-        "x": 576,
-        "y": 384,
-        "width": 96,
-        "height": 96,
-        "variant_x": 96,
-        "variant_y": 64
-    },
-    {
         "name": "start_point",
+        "x": 100,
+        "y": 608,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "block",
+        "x": 0,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 96,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 192,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
         "x": 288,
-        "y": 288,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "trampoline",
+        "x": 380,
+        "y": 656,
+        "width": 96,
+        "height": 33
+    },
+    {
+        "name": "fire",
+        "x": 420,
+        "y": 640,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": 500,
+        "y": 680,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "spike_head",
+        "x": 560,
+        "y": 624,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": 640,
+        "y": 560,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 736,
+        "y": 480,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 860,
+        "y": 420,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "pineapple",
+        "x": 904,
+        "y": 384,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "block",
+        "x": 960,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 1056,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 1152,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 1248,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "fire",
+        "x": 1000,
+        "y": 640,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "fire",
+        "x": 1100,
+        "y": 640,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "fire",
+        "x": 1200,
+        "y": 640,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "trampoline",
+        "x": 1320,
+        "y": 656,
+        "width": 96,
+        "height": 33
+    },
+    {
+        "name": "trampoline",
+        "x": 1420,
+        "y": 656,
+        "width": 96,
+        "height": 33
+    },
+    {
+        "name": "block",
+        "x": 1520,
+        "y": 520,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 1616,
+        "y": 440,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 1720,
+        "y": 360,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 1820,
+        "y": 300,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "saw",
+        "x": 1600,
+        "y": 600,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "spike_head",
+        "x": 1740,
+        "y": 520,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": 1880,
+        "y": 480,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "tiny_block",
+        "x": 2420,
+        "y": 600,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 2520,
+        "y": 560,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "tiny_block",
+        "x": 2620,
+        "y": 620,
+        "width": 48,
+        "height": 48,
+        "variant_x": 144,
+        "variant_y": 0
+    },
+    {
+        "name": "spike_head",
+        "x": 2700,
+        "y": 640,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "saw",
+        "x": 2780,
+        "y": 640,
+        "width": 64,
+        "height": 64
+    },
+    {
+        "name": "fire",
+        "x": 2860,
+        "y": 640,
+        "width": 32,
+        "height": 64
+    },
+    {
+        "name": "block",
+        "x": 2900,
+        "y": 704,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 2996,
+        "y": 624,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 3092,
+        "y": 544,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "block",
+        "x": 3188,
+        "y": 464,
+        "width": 96,
+        "height": 96,
+        "variant_x": 96,
+        "variant_y": 0
+    },
+    {
+        "name": "melon",
+        "x": 3124,
+        "y": 520,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "strawberry",
+        "x": 3224,
+        "y": 448,
+        "width": 48,
+        "height": 48
+    },
+    {
+        "name": "end_point",
+        "x": 3300,
+        "y": 368,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 2208,
+        "y": 576,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 2112,
+        "y": 576,
+        "width": 96,
+        "height": 96
+    },
+    {
+        "name": "ice",
+        "x": 2016,
+        "y": 576,
         "width": 96,
         "height": 96
     },
     {
         "name": "check_point",
-        "x": 576,
-        "y": 288,
+        "x": 2112,
+        "y": 480,
         "width": 96,
         "height": 96
     }

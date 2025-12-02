@@ -551,9 +551,7 @@ if __name__ == "__main__":
         sys.exit()
         # plans for game
         #Achievments
-        #Better maps ughhhhhhhh
-        # trampoling boing
         # Maybe setting (hard do later)
         # Get more blocks like space theme
         # stars in main screen counting them up
-        # Add fruits that provide buffs maybe debuffs after (first map editor)
+        # MONSTERRRRRRRRRS with variety

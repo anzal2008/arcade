@@ -16,7 +16,7 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer")
 
 FPS = 60
-PLAYER_VEL = 8
+PLAYER_VEL = 10
 BASE_TILE_SIZE = 32
 EDITOR_BLOCK_SIZE = 96
 LIVES_START = 3
@@ -58,6 +58,7 @@ MAP_FILES = {
     pygame.K_5: 'level_data_5.json',
     pygame.K_6: 'level_data_6.json',
 }
+
 def try_font(path, size):
     return pygame.font.Font(path, size)
 
@@ -313,6 +314,10 @@ class Player(pygame.sprite.Sprite):
         self.terrain_modifier = 1.0
         self.terrain_friction = 0.9
 
+        self.jump_boost = False
+        self.jump_boost_timer = 0
+        
+        self.melon_active = False
         self.current_terrain_effect = 'regular'
         self.terrain_decay_timer = 0
 
@@ -326,7 +331,11 @@ class Player(pygame.sprite.Sprite):
             jump_factor = 4
         else:
             jump_factor = 8
-        
+
+        if self.jump_boost:
+            jump_factor *= 1.6     
+            self.jump_boost = False # 
+
         self.y_vel = -self.GRAVITY * jump_factor
         self.animation_count = 0
         self.jump_count += 1
@@ -404,6 +413,43 @@ class Player(pygame.sprite.Sprite):
     def draw(self, win, ox, oy, inv):
         win.blit(self.sprite, (self.rect.x - ox, self.rect.y - oy))
 
+class Fruit(BaseObject):
+    FRUIT_SIZE = 48
+    ANIM_DELAY = 6
+    FRAME_SIZE = 32
+
+    MELON = load_image(join("assets", "Items", "Fruits", "Melon.png"))
+    PINEAPPLE = load_image(join("assets", "Items", "Fruits", "Pineapple.png"))
+    STRAWBERRY = load_image(join("assets", "Items", "Fruits", "Strawberry.png"))
+
+    FRUIT_ASSETS = {
+        "melon": (MELON, (FRAME_SIZE, FRAME_SIZE)),
+        "pineapple": (PINEAPPLE, (FRAME_SIZE, FRAME_SIZE)),
+        "strawberry": (STRAWBERRY, (FRAME_SIZE, FRAME_SIZE)),
+    }
+
+    def __init__(self, x, y, name):
+        super().__init__(x, y, self.FRUIT_SIZE, self.FRUIT_SIZE, name)
+
+        sheet, (fw, fh) = self.FRUIT_ASSETS[name]
+
+        self.frames = []
+        for i in range(sheet.get_width() // fw):
+            frame = pygame.Surface((fw, fh), pygame.SRCALPHA)
+            frame.blit(sheet, (0,0), (i * fw, 0, fw, fh))
+            self.frames.append(pygame.transform.scale(frame, (self.FRUIT_SIZE, self.FRUIT_SIZE)))
+
+        self.animation_count = 0
+        self.mask = pygame.mask.from_surface(self.image)
+        self.anim_delay = self.ANIM_DELAY
+        self.image = self.frames[0]
+
+    def loop(self):
+        idx = (self.animation_count // self.anim_delay) % len(self.frames)
+        self.image = self.frames[idx]
+        self.animation_count += 1
+        self.mask = pygame.mask.from_surface(self.image)
+
 class Button:
     def __init__(self, x, y, image_path, map_file=None):
         self.map_file = map_file
@@ -467,6 +513,8 @@ def load_level(data, block_size):
             objects.append(Saw(x, y, BASE_TILE_SIZE * 2, BASE_TILE_SIZE * 2))
         elif name == 'trampoline':
             objects.append(Trampoline(x, y))
+        elif name in ("melon", "pineapple", "strawberry"):
+            objects.append(Fruit(x, y, name))
         elif name == 'start_point':
             start_pos = (x, y)
             objects.append(StartPoint(x, y, block_size))
@@ -629,9 +677,12 @@ def handle_special_terrain(player, objects):
 
     if not on_special_block and player.terrain_decay_timer > 0:
         player.terrain_decay_timer -= 1
-
-    if player.terrain_decay_timer == 0 and not on_special_block:
+        if player.melon_active:
+            player.terrain_modifier = 2
+            player.terrain_friction = 0.8
+    if player.terrain_decay_timer == 0 and not on_special_block:     
         player.current_terrain_effect = 'regular'
+        player.melon_active = False
 
 def handle_move(player, objects, particles):
     handle_special_terrain(player, objects)
@@ -675,7 +726,23 @@ def handle_move(player, objects, particles):
     for t in [o for o in objects if o.name == 'trampoline']:
         if player.rect.colliderect(t.rect) and player.y_vel >= 0 and player.rect.bottom <= t.rect.top + 10:
             t.bounce(player)
+    for fruit in [o for o in objects if o.name in ("melon", "pineapple", "strawberry")]:
+        if pygame.sprite.collide_mask(player, fruit):
 
+            if fruit.name == "melon":
+                player.melon_active = True
+                player.terrain_modifier = 2
+                player.terrain_decay_timer = FPS * 7
+
+            elif fruit.name == "pineapple":
+                player.jump_boost = True
+
+            elif fruit.name == "strawberry":
+                if player.lives < 5:
+                    player.lives += 1
+            
+            objects.remove(fruit)
+    
     keys = pygame.key.get_pressed()
     is_moving = keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
 
@@ -742,7 +809,7 @@ def main(window, map_filename):
     DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE*2)
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
-    
+    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
     restart_btn = GameButton(WIDTH-58, 10, join('assets','Menu','Buttons','Restart.png'), (48,48))
     close_btn = GameButton(WIDTH-116,10, join('assets','Menu','Buttons','Close.png'), (48,48))
     start_time = pygame.time.get_ticks()
@@ -879,4 +946,5 @@ if __name__ == '__main__':
             else:
                 current_map = None
         else:
-            break
+            break 
+# fix the speed aspect

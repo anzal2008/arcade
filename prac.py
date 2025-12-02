@@ -316,7 +316,9 @@ class Player(pygame.sprite.Sprite):
 
         self.jump_boost = False
         self.jump_boost_timer = 0
-        
+        self.jump_boost_duration = FPS * 5        
+
+        self.melon_active = False
         self.current_terrain_effect = 'regular'
         self.terrain_decay_timer = 0
 
@@ -333,7 +335,6 @@ class Player(pygame.sprite.Sprite):
 
         if self.jump_boost:
             jump_factor *= 1.6     
-            self.jump_boost = False # 
 
         self.y_vel = -self.GRAVITY * jump_factor
         self.animation_count = 0
@@ -374,6 +375,11 @@ class Player(pygame.sprite.Sprite):
         self.update_sprite()
         if self.lives_invincibility_timer > 0:
             self.lives_invincibility_timer -= 1
+
+        if self.jump_boost_timer > 0:
+            self.jump_boost_timer -= 1
+            if self.jump_boost_timer <= 0:
+                self.jump_boost = False
 
     def landed(self):
         self.fall_count = 0
@@ -676,9 +682,12 @@ def handle_special_terrain(player, objects):
 
     if not on_special_block and player.terrain_decay_timer > 0:
         player.terrain_decay_timer -= 1
-
-    if player.terrain_decay_timer == 0 and not on_special_block:
+        if player.melon_active:
+            player.terrain_modifier = 2
+            player.terrain_friction = 0.8
+    if player.terrain_decay_timer == 0 and not on_special_block:     
         player.current_terrain_effect = 'regular'
+        player.melon_active = False
 
 def handle_move(player, objects, particles):
     handle_special_terrain(player, objects)
@@ -726,11 +735,13 @@ def handle_move(player, objects, particles):
         if pygame.sprite.collide_mask(player, fruit):
 
             if fruit.name == "melon":
-                player.terrain_modifier = 5.0 # speeeed
+                player.melon_active = True
+                player.terrain_modifier = 2
                 player.terrain_decay_timer = FPS * 7
 
             elif fruit.name == "pineapple":
                 player.jump_boost = True
+                player.jump_boost_timer = player.jump_boost_duration
 
             elif fruit.name == "strawberry":
                 if player.lives < 5:
@@ -799,12 +810,21 @@ def main(window, map_filename):
     clock = pygame.time.Clock()
     bg_name = BACKGROUND_MAPPING.get(map_filename, 'Blue.png')
     bg_img, bg_w, bg_h = get_background(bg_name)
-    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
+
+    FULL_PATH = join("assets", "Maps", map_filename)
+    if exists(FULL_PATH):
+        with open(FULL_PATH, 'r') as f:
+            RAW_MAP_DATA = json.load(f)
+    else:
+        RAW_MAP_DATA = []
+    
+    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
     trampolines = [o for o in objects if o.name == 'trampoline']
+    
     DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE*2)
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
-    
+    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
     restart_btn = GameButton(WIDTH-58, 10, join('assets','Menu','Buttons','Restart.png'), (48,48))
     close_btn = GameButton(WIDTH-116,10, join('assets','Menu','Buttons','Close.png'), (48,48))
     start_time = pygame.time.get_ticks()
@@ -841,6 +861,9 @@ def main(window, map_filename):
                 mp = event.pos
                 
                 if restart_btn.check_click(mp):
+                    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
+                    trampolines = [o for o in objects if o.name == 'trampoline']
+
                     player.lives = LIVES_START
                     player.start_pos = INITIAL
                     player.rect.topleft = INITIAL

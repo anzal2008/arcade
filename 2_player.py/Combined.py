@@ -405,3 +405,11 @@ def launcher_screen():
 if __name__ == "__main__":
     launcher_screen()
     pygame.quit()
+
+    #FINAL TOUCHES
+    # Improve home screren like 3 optionsd arcade themed
+    # add a few more simple improvment to all the games 
+    # make so buyttons wrokm everywhere and is seamless
+    # eventall;y add transtion ot each game
+    # have a goal of achievenmtn top done "finish" the game
+    # imporvwe fonts and than submit game 1 week lets go
