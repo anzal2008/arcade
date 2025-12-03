@@ -16,9 +16,9 @@ MAX_BULLET = 3
 SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 55, 40
 BORDER = pygame.Rect(WIDTH // 2 - 5, 0, 10, HEIGHT)
 
-PLAYER_WIDTH, PLAYER_HEIGHT = 40, 60
+PLAYER_WIDTH, PLAYER_HEIGHT = int(WIDTH * 0.05), int(HEIGHT * 0.12)
 PLAYER_VEL = 5
-STAR_WIDTH, STAR_HEIGHT = 30, 40
+STAR_WIDTH, STAR_HEIGHT = int(WIDTH * 0.035), int(HEIGHT * 0.08)
 STAR_VEL = 3
 
 pygame.display.set_caption("Pygame Arcade Launcher")
@@ -260,10 +260,10 @@ def launcher_screen():
 if __name__ == "__main__":
     launcher_screen()
     pygame.quit()
-        #FINAL TOUCHES
-    # SIMPLIFY CODE very baddd
+    #FINAL TOUCHES
     # add a few more simple improvment to all the games 
     # make so buyttons wrokm everywhere and is seamless
     # eventall;y add transtion ot each game
     # have a goal of achievenmtn top done "finish" the game
     # imporvwe fonts and than submit game 1 week lets go
+    # Combine code to see how it works than add setting all that good stf eheh
