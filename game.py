@@ -12,7 +12,7 @@ pygame.mixer.init()
 pygame.font.init()
 
 WIDTH, HEIGHT = 1000, 800
-WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer")
 
 FPS = 60
@@ -508,7 +508,7 @@ def load_level(data, block_size):
         elif name == 'tiny_block':
             objects.append(Block(x, y, 48, item.get('variant_x', 144), item.get('variant_y', 0)))
         elif name in ('mud', 'grass', 'ice'):
-                      objects.append(SpecialBlock(x, y, name, block_size, item.get('variant_x', 0),item.get('varaint_y', 0)))
+                      objects.append(SpecialBlock(x, y, name, block_size, item.get('variant_x', 0),item.get('variant_y', 0)))
         elif name == 'fire':
             fire_w, fire_h = BASE_TILE_SIZE, BASE_TILE_SIZE * 2
             objects.append(Fire(x, y, BASE_TILE_SIZE, BASE_TILE_SIZE * 2))
@@ -771,117 +771,125 @@ def handle_move(player, objects, particles):
 
 def main_menu(window):
     clock = pygame.time.Clock()
+    WIDTH, HEIGHT = window.get_size()
     menu_bg = get_menu_background()
     title = MENU_FONT.render('PLATFORMER', True, (255, 105, 180))
-    title_x = WIDTH//2 - title.get_width()//2
-    title_y = HEIGHT//5
-    button_paths = [join('assets','Menu','Levels','01.png'), join('assets','Menu','Levels','02.png'), join('assets','Menu','Levels','03.png'), join('assets','Menu','Levels','04.png'), join('assets','Menu','Levels','05.png'), join('assets','Menu','Levels','06.png')]
-    map_files = ['level_data_1.json','level_data_2.json', 'level_data_3.json', 'level_data_4.json','level_data_5.json','level_data_6.json']
-    button_size = 96; spacing = 50
-    total_w = 6*button_size + 5*spacing
-    start_x = (WIDTH - total_w)//2
-    button_y = HEIGHT//2 + 50
+    title_x = WIDTH // 2 - title.get_width() // 2
+    title_y = HEIGHT // 5
+
+    button_paths = [
+        join('assets', 'Menu', 'Levels', '01.png'),
+        join('assets', 'Menu', 'Levels', '02.png'),
+        join('assets', 'Menu', 'Levels', '03.png'),
+        join('assets', 'Menu', 'Levels', '04.png'),
+        join('assets', 'Menu', 'Levels', '05.png'),
+        join('assets', 'Menu', 'Levels', '06.png')
+    ]
+    map_files = [
+        'level_data_1.json', 'level_data_2.json', 'level_data_3.json',
+        'level_data_4.json', 'level_data_5.json', 'level_data_6.json'
+    ]
+
+    button_size = 96
+    spacing = 50
+    total_w = 6 * button_size + 5 * spacing
+    start_x = (WIDTH - total_w) // 2
+    button_y = HEIGHT // 2 + 50
+
     buttons = []
     x = start_x
     for i in range(6):
         buttons.append(Button(x, button_y, button_paths[i], map_files[i]))
         x += button_size + spacing
-    run = True
+
     selected = None
+    run = True
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit(); sys.exit()
+                return 'quit'
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for b in buttons:
                     if b.check_click(event.pos):
                         selected = b.map_file
                         run = False
                         break
-        window.blit(menu_bg, (0,0))
+
+        window.blit(menu_bg, (0, 0))
         window.blit(title, (title_x, title_y))
-        for b in buttons: b.draw(window)
+        for b in buttons:
+            b.draw(window)
         pygame.display.update()
+
     return selected
+
 
 def main(window, map_filename):
     clock = pygame.time.Clock()
+    WIDTH, HEIGHT = window.get_size()
+    
     bg_name = BACKGROUND_MAPPING.get(map_filename, 'Blue.png')
     bg_img, bg_w, bg_h = get_background(bg_name)
 
-    FULL_PATH = join("assets", "Maps", map_filename)
-    if exists(FULL_PATH):
-        with open(FULL_PATH, 'r') as f:
-            RAW_MAP_DATA = json.load(f)
-    else:
-        RAW_MAP_DATA = []
-    
-    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
+    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
     trampolines = [o for o in objects if o.name == 'trampoline']
-    
-    DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE*2)
+
+    DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE * 2)
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
-    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
-    restart_btn = GameButton(WIDTH-58, 10, join('assets','Menu','Buttons','Restart.png'), (48,48))
-    close_btn = GameButton(WIDTH-116,10, join('assets','Menu','Buttons','Close.png'), (48,48))
+
+    restart_btn = GameButton(WIDTH - 58, 10, join('assets', 'Menu', 'Buttons', 'Restart.png'), (48, 48))
+    close_btn = GameButton(WIDTH - 116, 10, join('assets', 'Menu', 'Buttons', 'Close.png'), (48, 48))
     start_time = pygame.time.get_ticks()
     final_time = None
     particles = pygame.sprite.Group()
 
-    offset_x = 0; offset_y = 0 
-    scroll_w = 200 
-    in_game = [restart_btn, close_btn]
-    INITIAL = player_start  
-    run = True; game_over = False; level_complete = False
-    
     offset_x = player_start[0] - (WIDTH // 2)
     offset_y = player_start[1] - (HEIGHT // 2)
 
-    #MUSIC background
+    # Background music
     MUSIC_FILE = join('assets', 'Audio', 'game.mp3')
     pygame.mixer.music.load(MUSIC_FILE)
     pygame.mixer.music.play(-1)
 
+    game_over = False
+    level_complete = False
+    INITIAL = player_start
+
+    run = True
     while run:
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and player.jump_count < 2 and not game_over and not level_complete:
-                max_jumps = 2
-                if player.current_terrain_effect == 'mud':
-                    max_jumps = 1
-
+                pygame.mixer.music.stop()
+                return 'quit'
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                max_jumps = 2 if player.current_terrain_effect != 'mud' else 1
                 if player.jump_count < max_jumps:
                     player.jump()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mp = event.pos
-                
                 if restart_btn.check_click(mp):
-                    objects, start_pos = load_level(RAW_MAP_DATA, EDITOR_BLOCK_SIZE)
+                    objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
                     trampolines = [o for o in objects if o.name == 'trampoline']
-
                     player.lives = LIVES_START
                     player.start_pos = INITIAL
                     player.rect.topleft = INITIAL
                     player.x_vel = player.y_vel = 0
                     game_over = False
                     level_complete = False
-                    final_time = None 
-                    start_time = pygame.time.get_ticks() 
-                    
+                    final_time = None
+                    start_time = pygame.time.get_ticks()
                     offset_x = INITIAL[0] - (WIDTH // 2)
                     offset_y = INITIAL[1] - (HEIGHT // 2)
-                    
                 if close_btn.check_click(mp):
                     pygame.mixer.music.stop()
                     return 'menu'
-                    
+
         if level_complete and final_time is None:
             final_time = (pygame.time.get_ticks() - start_time) / 1000.0
-            
+
         if not game_over and not level_complete:
             player.loop(FPS)
             handle_move(player, objects, particles)
@@ -896,69 +904,72 @@ def main(window, map_filename):
                     if player.lives <= 0:
                         game_over = True
                     else:
-                        player.rect.topleft = player.start_pos 
+                        player.rect.topleft = player.start_pos
                         player.x_vel = player.y_vel = 0
                         offset_x = player.start_pos[0] - (WIDTH // 2)
                         offset_y = player.start_pos[1] - (HEIGHT // 2)
-                
                 player.hit = False
-            
-            if ((player.rect.right - offset_x >= WIDTH - scroll_w) and player.x_vel > 0) or ((player.rect.left - offset_x <= scroll_w) and player.x_vel < 0):
+
+            if ((player.rect.right - offset_x >= WIDTH - 200) and player.x_vel > 0) or \
+               ((player.rect.left - offset_x <= 200) and player.x_vel < 0):
                 offset_x += player.x_vel
             target_y = player.rect.y - (HEIGHT // 2)
             offset_y += (target_y - offset_y) * 0.1
-            
+
         for o in [x for x in objects if hasattr(x, 'loop')]:
             o.loop()
-        
         particles.update()
 
         draw(window, bg_img, bg_w, bg_h, player, objects, offset_x, offset_y, player.lives_invincibility_timer, game_over, level_complete)
-        
         for p in particles:
             p.draw(window, offset_x, offset_y)
-        
+
         if level_complete and final_time is not None:
             draw_completion_screen(window, final_time, restart_btn, close_btn)
         else:
-            restart_btn.rect.topleft = (WIDTH-58, 10)
-            close_btn.rect.topleft = (WIDTH-116, 10)
-            for b in [restart_btn, close_btn]: 
+            restart_btn.rect.topleft = (WIDTH - 58, 10)
+            close_btn.rect.topleft = (WIDTH - 116, 10)
+            for b in [restart_btn, close_btn]:
                 b.draw(window)
 
         pygame.display.update()
-            
+
         if game_over:
             pygame.time.delay(2000)
-            
             player.lives = LIVES_START
             player.rect.topleft = INITIAL
             player.start_pos = INITIAL
             player.x_vel = player.y_vel = 0
             game_over = False
-            level_complete = False 
-            final_time = None 
-            start_time = pygame.time.get_ticks() 
-            
+            level_complete = False
+            final_time = None
+            start_time = pygame.time.get_ticks()
             offset_x = INITIAL[0] - (WIDTH // 2)
             offset_y = INITIAL[1] - (HEIGHT // 2)
-    
+
     pygame.mixer.music.stop()
-    pygame.quit(); sys.exit()
+    return 'menu'
+
 
 # Run
 if __name__ == '__main__':
     current_map = None
+    current_menu = 'main'
+
     while True:
-        if current_map is None:
-            current_map = main_menu(WINDOW)
-        if current_map:
-            action = main(WINDOW, current_map)
+        if current_menu == 'main':
+            selection = main_menu(window)
+            if selection == 'quit':
+                break
+            elif selection in MAP_FILES.values():  # if they clicked a level
+                current_map = selection
+                current_menu = 'platformer'
+            else:
+                current_menu = 'main'
+
+        elif current_menu == 'platformer':
+            action = main(window, current_map)
             if action == 'menu':
-                current_map = None
+                current_menu = 'main'  # back to arcade menu
             elif action == 'quit':
                 break
-            else:
-                current_map = None
-        else:
-            break 

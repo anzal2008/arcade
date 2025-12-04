@@ -14,10 +14,9 @@ def load_font(size):
 HEALTH_FONT = load_font(40)
 WINNER_FONT = load_font(100)
 
-#Shootet game
+# Shooter game
 def draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship, HEALTH_FONT):
     WIN.blit(bg, (0, 0))
-    BORDER = pygame.Rect(WIDTH // 2 - 5, 0, 10, HEIGHT)
     pygame.draw.rect(WIN, "black", BORDER)
 
     red_health_text = HEALTH_FONT.render(f"Health: {red_health}", 1, "white")
@@ -35,7 +34,7 @@ def draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, ye
 
     pygame.display.update()
 
-def handle_bullets(yellow_bullets, red_bullets, yellow, red, bullet_hit_sound, WIDTH, BULLET_VEL):
+def handle_bullets(yellow_bullets, red_bullets, yellow, red, BULLET_VEL, WIDTH, bullet_hit_sound):
     red_hit = 0
     yellow_hit = 0
     
@@ -50,12 +49,14 @@ def handle_bullets(yellow_bullets, red_bullets, yellow, red, bullet_hit_sound, W
 
     for bullet in red_bullets[:]:
         bullet.x -= BULLET_VEL
-        if bullet.colliderect(red):
+        if bullet.colliderect(yellow):
             yellow_hit += 1
-            bullet_hit_sound.plau()
+            bullet_hit_sound.play()
             red_bullets.remove(bullet)
         elif bullet.x < 0:
             red_bullets.remove(bullet)
+
+    return red_hit, yellow_hit
 
 def handle_movement(keys, yellow, red, VEL, WIDTH, HEIGHT, BORDER, SPACESHIP_WIDTH, SPACESHIP_HEIGHT):
     # Yellow controls
@@ -121,32 +122,24 @@ def main_shooter():
                 if event.key == pygame.K_RCTRL and len(red_bullets) < MAX_BULLET:
                     red_bullets.append(pygame.Rect(red.x, red.y + red.height // 2 - 2, 10, 5))
                     bullet_fire_sound.play()
-            if event.type == pygame.USEREVENT + 2:  # RED_HIT
-                red_health -= 1
-                bullet_hit_sound.play()
-            if event.type == pygame.USEREVENT + 1:  # YELLOW_HIT
-                yellow_health -= 1
-                bullet_hit_sound.play()
-
 
         keys = pygame.key.get_pressed()
         handle_movement(keys, yellow, red, VEL, WIDTH, HEIGHT, BORDER, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
 
         red_hits, yellow_hits = handle_bullets(yellow_bullets, red_bullets, yellow, red, BULLET_VEL, WIDTH, bullet_hit_sound)
         red_health -= red_hits
-        yellow_health -= yellow_hits       
+        yellow_health -= yellow_hits
 
         if red_health <= 0: 
-            draw_winner = "Yellow Wins!"
+            draw_winner("Yellow Wins!")
             return
 
         if yellow_health <= 0: 
-            draw_winner = "Red Wins!"
+            draw_winner("Red Wins!")
             return
        
-        draw_window_shooter(red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship)
+        draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship, HEALTH_FONT)
 
-        
 if __name__ == "__main__":
     main_shooter()
     pygame.quit()

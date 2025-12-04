@@ -1,11 +1,12 @@
 import pygame
 import os
 import sys
+import traceback
 from os.path import join
 
 from one_v_one import main_shooter
 from Space_dodger import main_dodger
-from game.py import main_menu
+from game import main_menu
 
 pygame.font.init()
 pygame.mixer.init()
@@ -17,7 +18,7 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 def load_font(size):
     return pygame.font.Font(join("assets", "Menu", "text", "Platform.TTF"), size)
 
-LAUNCHER_TITLE_FONT = load_font(70)
+LAUNCHER_TITLE_FONT = load_font(70) 
 LAUNCHER_LABEL_FONT = load_font(25)
 
 def launcher_screen():
@@ -40,14 +41,20 @@ def launcher_screen():
     title_text = LAUNCHER_TITLE_FONT.render("PYGAME ARCADE", 1, "white")
     title_rect = title_text.get_rect(center=(WIDTH // 2, 50))
 
+    clock = pygame.time.Clock()
     run = True
     while run:
+        clock.tick(60)
         for event in pygame.event.get():
             if event.type == pygame.QUIT: pygame.quit(); sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if arcade1.collidepoint(event.pos): main_shooter()
-                if arcade2.collidepoint(event.pos): main_dodger()
-                if arcade3.collidepoint(event.pos): main_menu()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button ==1:
+                pos = event.pos
+                if arcade1.collidepoint(event.pos): 
+                    main_shooter()
+                elif arcade2.collidepoint(pos):
+                    main_dodger()       
+                elif arcade3.collidepoint(pos):              
+                    main_menu(WIN)
 
         WIN.blit(launcher_bg, (0, 0))
         WIN.blit(arcade_img, arcade1)
@@ -70,3 +77,4 @@ if __name__ == "__main__":
     # have a goal of achievenmtn top done "finish" the game
     # imporvwe fonts and than submit game 1 week lets go
     # Combine code to see how it works than add setting all that good stf eheh
+    # Bebugg imporitng as glitchy for 
