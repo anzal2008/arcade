@@ -554,4 +554,5 @@ if __name__ == "__main__":
         # Maybe setting (hard do later)
         # Get more blocks like space theme
         # stars in main screen counting them up
-        # MONSTERRRRRRRRRS with variety
+        # MONSTERRRRRRRRRS with variety: Vampire ?? drain heart
+        

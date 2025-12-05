@@ -11,7 +11,7 @@ pygame.init()
 pygame.mixer.init()
 pygame.font.init()
 
-WIDTH, HEIGHT = 1000, 800
+WIDTH, HEIGHT = 900, 500
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer")
 
@@ -769,9 +769,10 @@ def handle_move(player, objects, particles):
             new_particle = Particle(px, py, image_path, velocity=(scatter_x, scatter_y), lifetime=random.randint(15, 25))
             particles.add(new_particle)
 
-def main_menu(window):
+def main_menu(window=None):
+    if window is None:
+        window = pygame.display.set_mode((900, 500))
     clock = pygame.time.Clock()
-    WIDTH, HEIGHT = window.get_size()
     menu_bg = get_menu_background()
     title = MENU_FONT.render('PLATFORMER', True, (255, 105, 180))
     title_x = WIDTH // 2 - title.get_width() // 2
@@ -808,8 +809,11 @@ def main_menu(window):
         clock.tick(FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 return 'quit'
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                pos = event.pos
+
                 for b in buttons:
                     if b.check_click(event.pos):
                         selected = b.map_file
@@ -827,7 +831,6 @@ def main_menu(window):
 
 def main(window, map_filename):
     clock = pygame.time.Clock()
-    WIDTH, HEIGHT = window.get_size()
     
     bg_name = BACKGROUND_MAPPING.get(map_filename, 'Blue.png')
     bg_img, bg_w, bg_h = get_background(bg_name)
@@ -953,6 +956,8 @@ def main(window, map_filename):
 
 # Run
 if __name__ == '__main__':
+    pygame.init()
+    window = pygame.display.set_mode((900, 500))
     current_map = None
     current_menu = 'main'
 
@@ -965,7 +970,7 @@ if __name__ == '__main__':
                 current_map = selection
                 current_menu = 'platformer'
             else:
-                current_menu = 'main'
+                current_menu = 'main' # fix later
 
         elif current_menu == 'platformer':
             action = main(window, current_map)
