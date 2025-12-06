@@ -11,6 +11,21 @@ pygame.init()
 pygame.mixer.init()
 pygame.font.init()
 
+# -----------------------------
+# Resource path helper
+# -----------------------------
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# -----------------------------
+# Game constants
+# -----------------------------
 WIDTH, HEIGHT = 900, 500
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Platformer")
@@ -27,11 +42,14 @@ TIME_FOR_3_STARS = 60.0
 TIME_FOR_2_STARS = 120.0
 TIME_FOR_1_STARS = 180.0
 
+# -----------------------------
+# Assets
+# -----------------------------
 LEVEL_COMPLETE_ASSETS = {
-    3: join("assets", "other", "level_complete_3.png"),
-    2: join("assets", "other", "level_complete_2.png"),
-    1: join("assets", "other", "level_complete_1.png"),
-    0: join("assets", "other", "level_complete_0.png"),
+    3: resource_path(join("assets", "other", "level_complete_3.png")),
+    2: resource_path(join("assets", "other", "level_complete_2.png")),
+    1: resource_path(join("assets", "other", "level_complete_1.png")),
+    0: resource_path(join("assets", "other", "level_complete_0.png")),
 }
 
 BACKGROUND_MAPPING = {
@@ -43,11 +61,10 @@ BACKGROUND_MAPPING = {
     "level_data_6.json": "Pink.png",
 }
 
-
 PARTICLE_MAPPING = {
-    'ice': join("assets", "Traps", "Climate", "Iceparticle.png"),
-    'mud': join("assets", "Traps", "Climate", "Mudparticle.png"),
-    'regular': join("assets", "Traps", "Climate", "Sandparticle.png"),
+    'ice': resource_path(join("assets", "Traps", "Climate", "Iceparticle.png")),
+    'mud': resource_path(join("assets", "Traps", "Climate", "Mudparticle.png")),
+    'regular': resource_path(join("assets", "Traps", "Climate", "Sandparticle.png")),
 }
 
 MAP_FILES = {
@@ -59,23 +76,28 @@ MAP_FILES = {
     pygame.K_6: 'level_data_6.json',
 }
 
+# -----------------------------
+# Fonts
+# -----------------------------
 def try_font(path, size):
-    return pygame.font.Font(path, size)
+    return pygame.font.Font(resource_path(path), size)
 
 FONT = try_font(join("assets", "Menu", "Text", "Platform.TTF"), 40)
 MENU_FONT = try_font(join("assets", "Menu", "Text", "Platform.TTF"), 80)
 
-# Utilities and definitions
+# -----------------------------
+# Utilities
+# -----------------------------
 def load_image(path, fallback_size=(32, 32)):
-    return pygame.image.load(path).convert_alpha()
+    return pygame.image.load(resource_path(path)).convert_alpha()
 
 def load_sprite_sheets(dir1, dir2, width, height, direction=False):
-    path = join("assets", dir1, dir2)
+    path = resource_path(join("assets", dir1, dir2))
     files = [f for f in listdir(path) if isfile(join(path, f))]
     all_sprites = {}
 
     for image in files:
-        sheet = load_image(join(path, image), (width, height))
+        sheet = load_image(join(path, image))
         sprites = []
 
         for i in range(sheet.get_width() // width):
@@ -85,7 +107,12 @@ def load_sprite_sheets(dir1, dir2, width, height, direction=False):
             sprites.append(pygame.transform.scale2x(surf))
         
         name = image.replace('.png', '')
-        key = ('idle' if 'Idle' in name else 'run' if 'Run' in name else 'jump' if 'Jump' in name else 'fall' if 'Fall' in name else 'hit' if 'Hit' in name else name.lower())
+        key = ('idle' if 'Idle' in name else
+               'run' if 'Run' in name else
+               'jump' if 'Jump' in name else
+               'fall' if 'Fall' in name else
+               'hit' if 'Hit' in name else
+               name.lower())
         
         if direction:
             all_sprites[key + '_right'] = sprites
@@ -106,24 +133,23 @@ def cut_spritesheet(sheet, fw, fh, count=None):
     return frames
 
 def get_background(name):
-    path = join("assets", "Background", name)
-    img = load_image(path, (WIDTH, HEIGHT)).convert()
+    path = resource_path(join("assets", "Background", name))
+    img = load_image(path).convert()
     return img, img.get_width(), img.get_height()
 
 def get_block_variant(size, sx, sy):
-    path = join("assets", "Terrain", "Terrain.png")
+    path = resource_path(join("assets", "Terrain", "Terrain.png"))
     img = load_image(path, (BASE_TILE_SIZE, BASE_TILE_SIZE))
     surf = pygame.Surface((BASE_TILE_SIZE, BASE_TILE_SIZE), pygame.SRCALPHA)
     surf.blit(img, (0, 0), pygame.Rect(sx, sy, BASE_TILE_SIZE, BASE_TILE_SIZE))
     return pygame.transform.scale(surf, (size, size))
 
 def get_special_block_variant(size, sx, sy):
-    path = join("assets", "Traps", "Climate", "Special.png")
+    path = resource_path(join("assets", "Traps", "Climate", "Special.png"))
     TILE_SIZE = 48
     img = load_image(path, (TILE_SIZE, TILE_SIZE))
     surf = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
     surf.blit(img, (0, 0), pygame.Rect(sx, sy, TILE_SIZE, TILE_SIZE))
-
     return pygame.transform.scale(surf, (size, size))
 
 # Base object classes
@@ -174,7 +200,7 @@ class SpecialBlock(BaseObject):
 class AnimatedObject(BaseObject):
     def __init__(self, x, y, w, h, name, sheet_path, frame_size, anim_delay=5):
         super().__init__(x, y, w, h, name=name)
-        sheet = load_image(sheet_path, (frame_size[0], frame_size[1]))
+        sheet = load_image(resource_path(sheet_path), (frame_size[0], frame_size[1]))
         fw, fh = frame_size
         self.frames = []
         if sheet and fw > 0:
@@ -198,33 +224,36 @@ class AnimatedObject(BaseObject):
 
 class SpikeHead(AnimatedObject):
     def __init__(self, x, y, w, h):
-        super().__init__(x, y, w, h, 'spike_head', join('assets', 'Traps', 'Spike Head', 'Blink.png'), (54, 52), anim_delay=6)
+        super().__init__(x, y, w, h, 'spike_head', join(resource_path('assets'), 'Traps', 'Spike Head', 'Blink.png'), (54, 52), anim_delay=6)
 
 class Fire(AnimatedObject):
     def __init__(self, x, y, w, h):
-        super().__init__(x, y, w, h, 'fire', join('assets', 'Traps', 'Fire', 'on.png'), (16, 32), anim_delay=3)
+        super().__init__(x, y, w, h, 'fire', join(resource_path('assets'), 'Traps', 'Fire', 'on.png'), (16, 32), anim_delay=3)
 
 class Saw(AnimatedObject):
     def __init__(self, x, y, w, h):
-        super().__init__(x, y, w, h, 'saw', join('assets', 'Traps', 'saw', 'on.png'), (38, 38), anim_delay=2)
+        super().__init__(x, y, w, h, 'saw', join(resource_path('assets'), 'Traps', 'saw', 'on.png'), (38, 38), anim_delay=2)
 
 class CheckPoint(AnimatedObject):
     def __init__(self, x, y, size):
-        super().__init__(x, y, size, size, 'check_point', join('assets', 'Items', 'Checkpoints', 'Checkpoint', 'Idle.png'), (64, 64), anim_delay=5)
+        super().__init__(x, y, size, size, 'check_point',
+                         join(resource_path('assets'), 'Items', 'Checkpoints', 'Checkpoint', 'Idle.png'), (64, 64), anim_delay=5)
 
 class StartPoint(AnimatedObject):
     def __init__(self, x, y, size):
-        super().__init__(x, y, size, size, 'start_point', join('assets', 'Items', 'Checkpoints', 'Start', 'start.png'), (64, 64), anim_delay=6)
+        super().__init__(x, y, size, size, 'start_point',
+                         join(resource_path('assets'), 'Items', 'Checkpoints', 'Start', 'start.png'), (64, 64), anim_delay=6)
 
 class EndPoint(AnimatedObject):
     def __init__(self, x, y, size):
-        super().__init__(x, y, size, size, 'end_point', join('assets', 'Items', 'Checkpoints', 'End', 'end.png'), (64, 64), anim_delay=6)
+        super().__init__(x, y, size, size, 'end_point',
+                         join(resource_path('assets'), 'Items', 'Checkpoints', 'End', 'end.png'), (64, 64), anim_delay=6)
 
 class Particle(BaseObject):
     def __init__(self, x, y, image_path, velocity=(0,0), lifetime = 20):
         super().__init__(x, y, 10, 19, name='particle')
 
-        img = load_image(image_path, (5, 5))
+        img = load_image(resource_path(image_path), (5, 5))
         self.image = pygame.transform.scale(img, (10, 10))
 
         self.rect = self.image.get_rect(center=(x, y))
@@ -251,11 +280,11 @@ class Particle(BaseObject):
 class Trampoline(BaseObject):
     WIDTH = EDITOR_BLOCK_SIZE
     HEIGHT = int(EDITOR_BLOCK_SIZE * 0.35)
-    BOUNCE_VELOCITY = -44 #Trampoline jump height
+    BOUNCE_VELOCITY = -44  # Trampoline jump height
     ANIM_DELAY = 4
 
-    _idle = pygame.transform.scale(load_image("assets/Traps/Trampoline/Idle.png"), (WIDTH, HEIGHT))
-    _jump_frames = [pygame.transform.scale(f, (WIDTH, HEIGHT)) for f in cut_spritesheet(load_image("assets/Traps/Trampoline/Jump.png"), 282, 28, count=8)]
+    _idle = pygame.transform.scale(load_image(resource_path("assets/Traps/Trampoline/Idle.png")), (WIDTH, HEIGHT))
+    _jump_frames = [pygame.transform.scale(f, (WIDTH, HEIGHT)) for f in cut_spritesheet(load_image(resource_path("assets/Traps/Trampoline/Jump.png")), 282, 28, count=8)]
 
     def __init__(self, x, y):
         super().__init__(x, y, Trampoline.WIDTH, Trampoline.HEIGHT, name='trampoline')
@@ -322,7 +351,7 @@ class Player(pygame.sprite.Sprite):
         self.current_terrain_effect = 'regular'
         self.terrain_decay_timer = 0
 
-        self.heart_image = load_image(join('assets', 'Other', 'heart.png'))
+        self.heart_image = load_image(resource_path(join('assets', 'Other', 'heart.png')))
         self.heart_image = pygame.transform.scale(self.heart_image, (48, 48))
         self.heart_size = self.heart_image.get_width()
         self.heart_padding = 10
@@ -418,14 +447,15 @@ class Player(pygame.sprite.Sprite):
     def draw(self, win, ox, oy, inv):
         win.blit(self.sprite, (self.rect.x - ox, self.rect.y - oy))
 
+
 class Fruit(BaseObject):
     FRUIT_SIZE = 48
     ANIM_DELAY = 6
     FRAME_SIZE = 32
 
-    MELON = load_image(join("assets", "Items", "Fruits", "Melon.png"))
-    PINEAPPLE = load_image(join("assets", "Items", "Fruits", "Pineapple.png"))
-    STRAWBERRY = load_image(join("assets", "Items", "Fruits", "Strawberry.png"))
+    MELON = load_image(resource_path(join("assets", "Items", "Fruits", "Melon.png")))
+    PINEAPPLE = load_image(resource_path(join("assets", "Items", "Fruits", "Pineapple.png")))
+    STRAWBERRY = load_image(resource_path(join("assets", "Items", "Fruits", "Strawberry.png")))
 
     FRUIT_ASSETS = {
         "melon": (MELON, (FRAME_SIZE, FRAME_SIZE)),
@@ -449,16 +479,11 @@ class Fruit(BaseObject):
         self.anim_delay = self.ANIM_DELAY
         self.image = self.frames[0]
 
-    def loop(self):
-        idx = (self.animation_count // self.anim_delay) % len(self.frames)
-        self.image = self.frames[idx]
-        self.animation_count += 1
-        self.mask = pygame.mask.from_surface(self.image)
 
 class Button:
     def __init__(self, x, y, image_path, map_file=None):
         self.map_file = map_file
-        img = load_image(image_path, (96, 96))
+        img = load_image(resource_path(image_path), (96, 96))
         self.image = pygame.transform.scale(img, (96, 96))
         self.rect = self.image.get_rect(topleft=(x, y))
     def draw(self, surf):
@@ -466,18 +491,20 @@ class Button:
     def check_click(self, pos):
         return self.rect.collidepoint(pos)
 
+
 class GameButton(Button):
     def __init__(self, x, y, image_path, size, map_file=None):
-        img = load_image(image_path, size)
+        img = load_image(resource_path(image_path), size)
         self.image = pygame.transform.scale(img, size)
         self.rect = self.image.get_rect(topleft=(x, y))
     def check_click(self, pos):
         return self.rect.collidepoint(pos)
     
+
 # Save / Load level
 def save_map(objects, key):
     fname = MAP_FILES[key]
-    FULL_PATH = join("assets", "Maps", fname)
+    FULL_PATH = resource_path(join("assets", "Maps", fname))
     data = []
     for o in objects:
         item = {'name': o.name, 'x': o.rect.x, 'y': o.rect.y, 'width': o.width, 'height': o.height}
@@ -488,13 +515,15 @@ def save_map(objects, key):
     with open(FULL_PATH, 'w') as f:
         json.dump(data, f, indent=4)
 
+
 def load_map(filename='level_data_1.json', block_size=EDITOR_BLOCK_SIZE):
-    FULL_PATH = join("assets", "Maps", filename)
+    FULL_PATH = resource_path(join("assets", "Maps", filename))
     if not exists(FULL_PATH):
         return [], None
     with open(FULL_PATH, 'r') as f:
         data = json.load(f)
     return load_level(data, block_size)
+
 
 def load_level(data, block_size):
     objects = []
@@ -508,9 +537,8 @@ def load_level(data, block_size):
         elif name == 'tiny_block':
             objects.append(Block(x, y, 48, item.get('variant_x', 144), item.get('variant_y', 0)))
         elif name in ('mud', 'grass', 'ice'):
-                      objects.append(SpecialBlock(x, y, name, block_size, item.get('variant_x', 0),item.get('variant_y', 0)))
+            objects.append(SpecialBlock(x, y, name, block_size, item.get('variant_x', 0),item.get('variant_y', 0)))
         elif name == 'fire':
-            fire_w, fire_h = BASE_TILE_SIZE, BASE_TILE_SIZE * 2
             objects.append(Fire(x, y, BASE_TILE_SIZE, BASE_TILE_SIZE * 2))
         elif name == 'spike_head':
             objects.append(SpikeHead(x, y, BASE_TILE_SIZE * 2, BASE_TILE_SIZE * 2))
@@ -528,18 +556,20 @@ def load_level(data, block_size):
         elif name in ('check_point', 'checkpoint'):
             objects.append(CheckPoint(x, y, block_size))
     return objects, start_pos
-
+##
 # Editor utilities
 def get_menu_background(name='Menu.jpg'):
-    path = join('assets', 'Background', name)
+    path = resource_path(join('assets', 'Background', name))
     img = load_image(path, (WIDTH, HEIGHT))
     return pygame.transform.scale(img, (WIDTH, HEIGHT))
+
 
 def draw_hud(window, player):
     start_x = 10
     for i in range(player.lives):
         x = start_x + i * (player.heart_size + player.heart_padding)
         window.blit(player.heart_image, (x, 10))
+
 
 def draw(window, bg_image, bg_w, bg_h, player, objects, ox, oy, inv, game_over=False, level_complete=False):
     parallax = 0.5
@@ -557,10 +587,11 @@ def draw(window, bg_image, bg_w, bg_h, player, objects, ox, oy, inv, game_over=F
     if game_over:
         t = FONT.render('GAME OVER! Resetting', True, (255, 0, 0))
         window.blit(t, (WIDTH//2 - t.get_width()//2, HEIGHT//2))
-    
+
+
 def draw_completion_screen(window, current_time, restart_btn, close_btn):
     win_w, win_h = window.get_size()
-    
+
     dim_surface = pygame.Surface((win_w, win_h))
     dim_surface.set_alpha(150)
     dim_surface.fill(('black'))
@@ -575,7 +606,7 @@ def draw_completion_screen(window, current_time, restart_btn, close_btn):
     else:
         stars_achieved = 0
 
-    completion_image_path = LEVEL_COMPLETE_ASSETS.get(stars_achieved, LEVEL_COMPLETE_ASSETS.get(1))
+    completion_image_path = resource_path(LEVEL_COMPLETE_ASSETS.get(stars_achieved, LEVEL_COMPLETE_ASSETS.get(1)))
     completion_image = load_image(completion_image_path, (500, 300))
 
     target_width = 600
@@ -591,8 +622,7 @@ def draw_completion_screen(window, current_time, restart_btn, close_btn):
     window.blit(completion_image, (image_x, image_y))
 
     time_text = FONT.render(f"Time: {current_time:.2f} seconds", 1, (255, 255, 255))
-
-    time_text_x = (win_w - time_text.get_width()) //2
+    time_text_x = (win_w - time_text.get_width()) // 2
     time_text_y = image_y + completion_image.get_height() + 20
     window.blit(time_text, (time_text_x, time_text_y))
 
@@ -609,6 +639,7 @@ def draw_completion_screen(window, current_time, restart_btn, close_btn):
     close_btn.rect.topleft = (start_btn_x + btn_size + button_padding, btn_y)
     close_btn.draw(window)
 
+
 # Collision & Movement
 def handle_vertical_collision(player, objects, dy):
     collidable = [o for o in objects if o.name in ('block', 'tiny_block', 'mud', 'grass', 'ice')]
@@ -624,6 +655,7 @@ def handle_vertical_collision(player, objects, dy):
             collided.append(o)
     return collided
 
+
 def collide(player, objects, dx):
     player.move(dx, 0)
     player.update()
@@ -636,15 +668,17 @@ def collide(player, objects, dx):
     player.update()
     return result
 
+
 def handle_end_collision(player, objects):
     for o in objects:
         if o.name == 'end_point' and pygame.sprite.collide_mask(player, o):
             return True
     return False
 
+# Special terrain handling
 def handle_special_terrain(player, objects):
-    player.move(0, 1) 
-    special_blocks = [o for o in objects if isinstance(o, SpecialBlock)]
+    # Temporarily move player down to detect floor
+    player.move(0, 1)
     collided_blocks = pygame.sprite.spritecollide(player, objects, False, pygame.sprite.collide_mask)
     player.move(0, -1)
 
@@ -656,119 +690,121 @@ def handle_special_terrain(player, objects):
 
         if player_bottom >= obj_top and player_bottom < obj_top + 10:
             on_special_block = True
-            
+
             if obj.name == 'ice':
                 player.current_terrain_effect = 'ice'
-                player.terrain_decay_time = 3
+                player.terrain_decay_timer = 3
                 break
             elif obj.name == 'mud':
                 player.current_terrain_effect = 'mud'
-                player.terrain_decay_time = 3
+                player.terrain_decay_timer = 3
                 break
             elif obj.name != 'grass':
                 player.current_terrain_effect = 'grass'
-                player.terrain_decay_time = 3
+                player.terrain_decay_timer = 3
                 break
-                
-    if player.current_terrain_effect == 'ice':
-        player.terrain_friction = 1.2 # ICE FRICION
-        player.terrain_modifier = 1.5 # ICE SPEED
-    elif player.current_terrain_effect == 'mud':
-        player.terrain_friction = 0.2 # MUD FRICION
-        player.terrain_modifier = 0.3 # MUD SPEED
-    else:
-        player.terrain_friction = 0.8 # REGULAR FRICTION
-        player.terrain_modifier = 1 # REGULAR SPEED
 
+    # Set terrain friction & speed based on current effect
+    if player.current_terrain_effect == 'ice':
+        player.terrain_friction = 1.2
+        player.terrain_modifier = 1.5
+    elif player.current_terrain_effect == 'mud':
+        player.terrain_friction = 0.2
+        player.terrain_modifier = 0.3
+    else:
+        player.terrain_friction = 0.8
+        player.terrain_modifier = 1
+
+    # Decay terrain effects over time if not on special block
     if not on_special_block and player.terrain_decay_timer > 0:
         player.terrain_decay_timer -= 1
         if player.melon_active:
             player.terrain_modifier = 2
             player.terrain_friction = 0.8
-    if player.terrain_decay_timer == 0 and not on_special_block:     
+
+    if player.terrain_decay_timer == 0 and not on_special_block:
         player.current_terrain_effect = 'regular'
         player.melon_active = False
 
+
+# Player movement, collisions, and pickups
 def handle_move(player, objects, particles):
     handle_special_terrain(player, objects)
     keys = pygame.key.get_pressed()
     player_speed = PLAYER_VEL * player.terrain_modifier
 
     desired_x_vel = 0
-    if keys[pygame.K_LEFT]: 
+    if keys[pygame.K_LEFT]:
         player.move_left(PLAYER_VEL)
         desired_x_vel = player.x_vel
-    if keys[pygame.K_RIGHT]: 
+    if keys[pygame.K_RIGHT]:
         player.move_right(PLAYER_VEL)
         desired_x_vel = player.x_vel
 
+    # Apply friction if standing still
     if desired_x_vel == 0 and player.jump_count == 0:
         player.x_vel *= player.terrain_friction
-
         if abs(player.x_vel) < 0.5:
             player.x_vel = 0
     else:
         if desired_x_vel != 0:
             max_speed = PLAYER_VEL * player.terrain_modifier
             player.x_vel = max(min(player.x_vel, max_speed), -max_speed)
-            pass
-        else:
-            pass
 
+    # Horizontal collision
     if player.x_vel != 0 and collide(player, objects, player.x_vel):
         player.x_vel = 0
-   
+
+    # Vertical collision
     handle_vertical_collision(player, objects, player.y_vel)
 
+    # Traps
     for trap in [o for o in objects if o.name in ('fire', 'spike_head', 'saw')]:
         if pygame.sprite.collide_mask(player, trap) and player.lives_invincibility_timer <= 0:
             player.make_hit()
-   
+
+    # Checkpoints
     for cp in [o for o in objects if o.name == 'check_point']:
         if pygame.sprite.collide_mask(player, cp):
             player.start_pos = (cp.rect.x, cp.rect.y)
-   
+
+    # Trampolines
     for t in [o for o in objects if o.name == 'trampoline']:
         if player.rect.colliderect(t.rect) and player.y_vel >= 0 and player.rect.bottom <= t.rect.top + 10:
             t.bounce(player)
+
+    # Fruit pickups
     for fruit in [o for o in objects if o.name in ("melon", "pineapple", "strawberry")]:
         if pygame.sprite.collide_mask(player, fruit):
-
             if fruit.name == "melon":
                 player.melon_active = True
                 player.terrain_modifier = 2
                 player.terrain_decay_timer = FPS * 7
-
             elif fruit.name == "pineapple":
                 player.jump_boost = True
                 player.jump_boost_timer = player.jump_boost_duration
-
             elif fruit.name == "strawberry":
                 if player.lives < 5:
                     player.lives += 1
-            
             objects.remove(fruit)
-    
-    keys = pygame.key.get_pressed()
+
+    # Particle effects for movement
     is_moving = keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]
-
     if is_moving and player.y_vel == 0 and player.animation_count % 3 == 0:
-
         terrain_type = player.current_terrain_effect
         image_path = PARTICLE_MAPPING.get(terrain_type, PARTICLE_MAPPING['regular'])
-
         px = player.rect.centerx
         py = player.rect.bottom
-
         vel_x = -player.x_vel * 0.1
 
         for _ in range(2):
             scatter_x = vel_x + (random.random() * 2 - 1) * 0.5
             scatter_y = random.uniform(-2, -4)
-
             new_particle = Particle(px, py, image_path, velocity=(scatter_x, scatter_y), lifetime=random.randint(15, 25))
             particles.add(new_particle)
 
+
+# Main menu
 def main_menu(window=None):
     if window is None:
         window = pygame.display.set_mode((900, 500))
@@ -778,17 +814,12 @@ def main_menu(window=None):
     title_x = WIDTH // 2 - title.get_width() // 2
     title_y = HEIGHT // 5
 
+    # Level buttons
     button_paths = [
-        join('assets', 'Menu', 'Levels', '01.png'),
-        join('assets', 'Menu', 'Levels', '02.png'),
-        join('assets', 'Menu', 'Levels', '03.png'),
-        join('assets', 'Menu', 'Levels', '04.png'),
-        join('assets', 'Menu', 'Levels', '05.png'),
-        join('assets', 'Menu', 'Levels', '06.png')
+        resource_path(join('assets', 'Menu', 'Levels', f'{i:02}.png')) for i in range(1, 7)
     ]
     map_files = [
-        'level_data_1.json', 'level_data_2.json', 'level_data_3.json',
-        'level_data_4.json', 'level_data_5.json', 'level_data_6.json'
+        f'level_data_{i}.json' for i in range(1, 7)
     ]
 
     button_size = 96
@@ -812,8 +843,6 @@ def main_menu(window=None):
                 pygame.quit()
                 return 'quit'
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                pos = event.pos
-
                 for b in buttons:
                     if b.check_click(event.pos):
                         selected = b.map_file
@@ -828,31 +857,36 @@ def main_menu(window=None):
 
     return selected
 
-
 def main(window, map_filename):
     clock = pygame.time.Clock()
-    
+
+    # Background
     bg_name = BACKGROUND_MAPPING.get(map_filename, 'Blue.png')
     bg_img, bg_w, bg_h = get_background(bg_name)
 
+    # Load level objects
     objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
     trampolines = [o for o in objects if o.name == 'trampoline']
 
+    # Player setup
     DEFAULT_START = (100, HEIGHT - EDITOR_BLOCK_SIZE * 2)
     player_start = start_pos if start_pos else DEFAULT_START
     player = Player(player_start[0], player_start[1], 50, 50)
 
+    # UI buttons
     restart_btn = GameButton(WIDTH - 58, 10, join('assets', 'Menu', 'Buttons', 'Restart.png'), (48, 48))
     close_btn = GameButton(WIDTH - 116, 10, join('assets', 'Menu', 'Buttons', 'Close.png'), (48, 48))
+
     start_time = pygame.time.get_ticks()
     final_time = None
     particles = pygame.sprite.Group()
 
+    # Camera offset
     offset_x = player_start[0] - (WIDTH // 2)
     offset_y = player_start[1] - (HEIGHT // 2)
 
     # Background music
-    MUSIC_FILE = join('assets', 'Audio', 'game.mp3')
+    MUSIC_FILE = resource_path(join('assets', 'Audio', 'game.mp3'))
     pygame.mixer.music.load(MUSIC_FILE)
     pygame.mixer.music.play(-1)
 
@@ -867,13 +901,18 @@ def main(window, map_filename):
             if event.type == pygame.QUIT:
                 pygame.mixer.music.stop()
                 return 'quit'
+
+            # Player jump
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 max_jumps = 2 if player.current_terrain_effect != 'mud' else 1
                 if player.jump_count < max_jumps:
                     player.jump()
+
+            # Mouse clicks for buttons
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mp = event.pos
                 if restart_btn.check_click(mp):
+                    # Reset level
                     objects, start_pos = load_map(map_filename, EDITOR_BLOCK_SIZE)
                     trampolines = [o for o in objects if o.name == 'trampoline']
                     player.lives = LIVES_START
@@ -890,16 +929,24 @@ def main(window, map_filename):
                     pygame.mixer.music.stop()
                     return 'menu'
 
+        # Level completion timing
         if level_complete and final_time is None:
             final_time = (pygame.time.get_ticks() - start_time) / 1000.0
 
+        # Game logic
         if not game_over and not level_complete:
             player.loop(FPS)
             handle_move(player, objects, particles)
+
+            # Check end point
             if handle_end_collision(player, objects):
                 level_complete = True
+
+            # Check death plane
             if player.rect.y > DEATH_PLANE_HEIGHT and player.lives_invincibility_timer <= 0:
                 player.make_hit()
+
+            # Handle hits
             if player.hit:
                 if player.lives_invincibility_timer <= 0:
                     player.lives -= 1
@@ -913,20 +960,24 @@ def main(window, map_filename):
                         offset_y = player.start_pos[1] - (HEIGHT // 2)
                 player.hit = False
 
-            if ((player.rect.right - offset_x >= WIDTH - 200) and player.x_vel > 0) or \
-               ((player.rect.left - offset_x <= 200) and player.x_vel < 0):
+            # Camera follow
+            if ((player.rect.right - offset_x >= WIDTH - 200 and player.x_vel > 0) or
+                (player.rect.left - offset_x <= 200 and player.x_vel < 0)):
                 offset_x += player.x_vel
             target_y = player.rect.y - (HEIGHT // 2)
             offset_y += (target_y - offset_y) * 0.1
 
+        # Animate objects and particles
         for o in [x for x in objects if hasattr(x, 'loop')]:
             o.loop()
         particles.update()
 
+        # Draw everything
         draw(window, bg_img, bg_w, bg_h, player, objects, offset_x, offset_y, player.lives_invincibility_timer, game_over, level_complete)
         for p in particles:
             p.draw(window, offset_x, offset_y)
 
+        # Completion screen or buttons
         if level_complete and final_time is not None:
             draw_completion_screen(window, final_time, restart_btn, close_btn)
         else:
@@ -937,6 +988,7 @@ def main(window, map_filename):
 
         pygame.display.update()
 
+        # Reset on game over
         if game_over:
             pygame.time.delay(2000)
             player.lives = LIVES_START
@@ -954,7 +1006,7 @@ def main(window, map_filename):
     return 'menu'
 
 
-# Run
+# Entry point
 if __name__ == '__main__':
     pygame.init()
     window = pygame.display.set_mode((900, 500))
@@ -966,15 +1018,15 @@ if __name__ == '__main__':
             selection = main_menu(window)
             if selection == 'quit':
                 break
-            elif selection in MAP_FILES.values():  # if they clicked a level
+            elif selection in MAP_FILES.values():
                 current_map = selection
                 current_menu = 'platformer'
             else:
-                current_menu = 'main' # fix later
+                current_menu = 'main'
 
         elif current_menu == 'platformer':
             action = main(window, current_map)
             if action == 'menu':
-                current_menu = 'main'  # back to arcade menu
+                current_menu = 'main'
             elif action == 'quit':
                 break

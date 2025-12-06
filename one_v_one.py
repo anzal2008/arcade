@@ -1,20 +1,34 @@
 import pygame
 import os
+import sys
 from os.path import join
 
+# -------------------- Initialization --------------------
 pygame.font.init()
 pygame.mixer.init()
 
 WIDTH, HEIGHT = 900, 500
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+# -------------------- Helper Functions --------------------
+def resource_path(relative_path):
+    """
+    Get absolute path to resource, works for dev and PyInstaller.
+    """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return join(base_path, relative_path)
+
 def load_font(size):
-    return pygame.font.Font(join("assets", "Menu", "text", "Platform.TTF"), size)
+    return pygame.font.Font(resource_path(join("assets", "Menu", "text", "Platform.TTF")), size)
 
 HEALTH_FONT = load_font(40)
 WINNER_FONT = load_font(100)
 
-# Shooter game
+# -------------------- Shooter Game Functions --------------------
 def draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship, HEALTH_FONT):
     WIN.blit(bg, (0, 0))
     pygame.draw.rect(WIN, "black", BORDER)
@@ -37,7 +51,7 @@ def draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, ye
 def handle_bullets(yellow_bullets, red_bullets, yellow, red, BULLET_VEL, WIDTH, bullet_hit_sound):
     red_hit = 0
     yellow_hit = 0
-    
+
     for bullet in yellow_bullets[:]:
         bullet.x += BULLET_VEL
         if bullet.colliderect(red):
@@ -85,8 +99,9 @@ def draw_winner(text):
     pygame.display.update()
     pygame.time.delay(4000)
 
+# -------------------- Main Shooter Loop --------------------
 def main_shooter():
-    ASSETS_FOLDER = os.path.join(os.path.dirname(__file__), 'assets', 'Dual_game')
+    ASSETS_FOLDER = resource_path(join("assets", "Dual_game"))
 
     FPS = 60
     VEL = 5
@@ -95,12 +110,18 @@ def main_shooter():
     SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 55, 40
     BORDER = pygame.Rect(WIDTH//2 - 5, 0, 10, HEIGHT)
     
+    # Load assets
     bg = pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, '1v1.png')), (WIDTH, HEIGHT))
-    red_ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'spaceship_red.png')), (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 270)
-    yellow_ship = pygame.transform.rotate(pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'spaceship_yellow.png')), (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 90)
+    red_ship = pygame.transform.rotate(
+        pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'spaceship_red.png')), (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 270
+    )
+    yellow_ship = pygame.transform.rotate(
+        pygame.transform.scale(pygame.image.load(join(ASSETS_FOLDER, 'spaceship_yellow.png')), (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)), 90
+    )
     bullet_hit_sound = pygame.mixer.Sound(join(ASSETS_FOLDER, 'Grenade+1.mp3'))
     bullet_fire_sound = pygame.mixer.Sound(join(ASSETS_FOLDER, 'Gun+Silencer.mp3'))
 
+    # Initialize players
     red = pygame.Rect(700, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
     yellow = pygame.Rect(100, 300, SPACESHIP_WIDTH, SPACESHIP_HEIGHT)
     red_bullets = []
@@ -133,13 +154,13 @@ def main_shooter():
         if red_health <= 0: 
             draw_winner("Yellow Wins!")
             return
-
         if yellow_health <= 0: 
             draw_winner("Red Wins!")
             return
        
         draw_window_shooter(WIN, WIDTH, HEIGHT, BORDER, red, yellow, red_bullets, yellow_bullets, red_health, yellow_health, bg, red_ship, yellow_ship, HEALTH_FONT)
 
+# -------------------- Run --------------------
 if __name__ == "__main__":
     main_shooter()
     pygame.quit()

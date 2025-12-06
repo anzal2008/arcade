@@ -14,27 +14,48 @@ WIDTH, HEIGHT = 900, 500
 pygame.display.set_caption("Pygame Arcade Launcher")
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
+# --------------------------
+# Resource path function
+# --------------------------
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+# --------------------------
+# Load font via resource_path
+# --------------------------
 def load_font(size):
-    return pygame.font.Font(join("assets", "Menu", "text", "Platform.TTF"), size)
+    return pygame.font.Font(resource_path(join("assets", "Menu", "text", "Platform.TTF")), size)
 
 LAUNCHER_TITLE_FONT = load_font(70)
 LAUNCHER_LABEL_FONT = load_font(25)
 
+# --------------------------
+# Launcher screen
+# --------------------------
 def launcher_screen():
-    ASSETS_FOLDER = os.path.join(os.path.dirname(__file__), 'assets', 'Dual_game')
+    ASSETS_FOLDER = join("assets", "Dual_game")
+    
+    # Load background and arcade images using resource_path
     launcher_bg = pygame.transform.scale(
-        pygame.image.load(join(ASSETS_FOLDER, 'Arcade_BG.png')), 
+        pygame.image.load(resource_path(join(ASSETS_FOLDER, 'Arcade_BG.png'))),
         (WIDTH, HEIGHT)
     )
     arcade_img = pygame.transform.scale(
-        pygame.image.load(join(ASSETS_FOLDER, 'arcade.png')), 
+        pygame.image.load(resource_path(join(ASSETS_FOLDER, 'arcade.png'))),
         (250, 350)
     )
 
+    # Arcade positions
     arcade1 = arcade_img.get_rect(center=(WIDTH//2 - 250, HEIGHT//2 + 75))
     arcade2 = arcade_img.get_rect(center=(WIDTH//2, HEIGHT//2 + 75))
     arcade3 = arcade_img.get_rect(center=(WIDTH//2 + 250, HEIGHT//2 + 75))
 
+    # Labels
     label1 = LAUNCHER_LABEL_FONT.render("1v1 Shooter", True, "white")
     label2 = LAUNCHER_LABEL_FONT.render("Space Dodger", True, "black")
     label3 = LAUNCHER_LABEL_FONT.render("Platformer", True, "white")
@@ -43,6 +64,7 @@ def launcher_screen():
     label2_rect = label2.get_rect(center=(arcade2.centerx, arcade2.bottom - 30))
     label3_rect = label3.get_rect(center=(arcade3.centerx, arcade3.bottom - 30))
 
+    # Title
     title_text = LAUNCHER_TITLE_FONT.render("PYGAME ARCADE", True, "white")
     title_rect = title_text.get_rect(center=(WIDTH // 2, 50))
 
@@ -51,7 +73,6 @@ def launcher_screen():
 
     while run:
         clock.tick(60)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -70,13 +91,11 @@ def launcher_screen():
 
                 # Platformer
                 elif arcade3.collidepoint(pos):
-                    # ---- FIXED PLATFORMER FLOW ----
-                    selected_map = main_menu(WIN)   # get chosen level
+                    selected_map = main_menu(WIN)
                     if selected_map not in [None, "quit"]:
-                        result = platformer_main(WIN, selected_map)
-                        # When platformer returns to menu, go back to arcade
-                        # nothing else required
+                        platformer_main(WIN, selected_map)
 
+        # Draw everything
         WIN.blit(launcher_bg, (0, 0))
         WIN.blit(arcade_img, arcade1)
         WIN.blit(arcade_img, arcade2)
